@@ -41,8 +41,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   void _logout() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    await prefsAuth.remove('tokenKey2');
-    await prefsAuth.remove('cart2');
+    await prefsAuth.remove('tokenlogin');
     Get.offAllNamed('/login');
   }
 
