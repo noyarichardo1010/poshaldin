@@ -149,9 +149,15 @@ class _MyHomePageState extends State<MyHomePage> {
         showUnselectedLabels: true,
         currentIndex: _currentIndex,
         onTap: (int index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == _currentIndex) {
+            if (index == 0) {
+              mainController.webViewController?.reload();
+            }
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
 
         items: const [
