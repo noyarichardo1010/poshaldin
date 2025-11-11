@@ -61,9 +61,9 @@ class SplashScreen extends StatelessWidget {
           if (snapshot.data != null && snapshot.data!) {
             return const MyHomePage();
           } else {
-            return const MyHomePage();
+            // return const MyHomePage();
 
-            // return const LoginScreen();
+            return const LoginScreen();
           }
         }
       },
@@ -72,12 +72,13 @@ class SplashScreen extends StatelessWidget {
 
   Future<bool?> redirectPage() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    final String? tokenKey = prefsAuth.getString('tokenKey2');
+    final String? tokenKey = prefsAuth.getString('tokenlogin');
     // await prefsAuth.remove('tokenKey2');
     if (tokenKey != null) {
       return true;
     } else {
       print('TOKEN NULL');
+      print('TOKEN == ${tokenKey}');
       return false;
     }
   }

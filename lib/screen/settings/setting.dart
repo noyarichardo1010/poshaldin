@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 import 'package:poshaldin/controller/main_controller.dart';
-import 'package:poshaldin/screen/auth/login.dart';
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -16,23 +16,39 @@ class _SettingsPage extends State<SettingsPage> {
   var getProfileName = '';
   final MainController mainController = Get.find();
 
+  bool _isLoading = false;
+
   loadDataLogin() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    final List<String>? DataProfile = prefsAuth.getStringList('DataloginUser');
+
     setState(() {});
     print('Test Print Data ${getProfileName}');
   }
 
-  logout() async {
-    final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    await prefsAuth.remove('tokenKey2');
-    print('Test Logout');
+  _performLogout() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
+
+      await prefsAuth.remove('tokenlogin');
+
+      Get.offAllNamed('/login');
+    } catch (e) {
+      print("Logout failed: $e");
+
+      Get.snackbar('Error', 'Logout failed, please try again.');
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   void initState() {
     super.initState();
-
     loadDataLogin();
   }
 
@@ -73,7 +89,6 @@ class _SettingsPage extends State<SettingsPage> {
             ),
             SizedBox(height: 5),
             Text(
-              // getProfileName[0],
               getProfileName.isNotEmpty ? getProfileName : 'User',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -83,28 +98,31 @@ class _SettingsPage extends State<SettingsPage> {
               ),
             ),
             SizedBox(height: 50),
-
             SizedBox(height: 10),
             SizedBox(height: 50),
             Center(
               child: OutlinedButton(
-                onPressed: () {
-                  mainController.webViewController?.runJavaScript(
-                    'ExitBridge.postMessage("exit")',
-                  );
-                },
-                child: Text(
-                  "Log Out",
-                  style: TextStyle(
-                    fontSize: 16,
-                    letterSpacing: 2.2,
-                    color: const Color.fromARGB(255, 218, 1, 1),
-                  ),
-                ),
+                onPressed: _isLoading ? null : _performLogout,
+                child: _isLoading
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: const Color.fromARGB(255, 218, 1, 1),
+                        ),
+                      )
+                    : Text(
+                        "Log Out",
+                        style: TextStyle(
+                          fontSize: 16,
+                          letterSpacing: 2.2,
+                          color: const Color.fromARGB(255, 218, 1, 1),
+                        ),
+                      ),
               ),
             ),
             SizedBox(height: 30),
-
             SizedBox(height: 16),
           ],
         ),
@@ -140,15 +158,7 @@ class _SettingsPage extends State<SettingsPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text(title),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("Option 1"),
-                  Text("Option 2"),
-                  Text("Option 3"),
-                  Text("Option 4"),
-                ],
-              ),
+              content: Column(mainAxisSize: MainAxisSize.min),
               actions: [
                 TextButton(
                   onPressed: () {
