@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:poshaldin/screen/homepage/components/webview.dart';
+import 'package:protopos/screen/homepage/components/webview.dart';
 
 class homeView extends StatelessWidget {
   final String url;

@@ -1,9 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-import 'package:poshaldin/controller/main_controller.dart';
-
+import 'package:protopos/controller/main_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -20,7 +18,6 @@ class _SettingsPage extends State<SettingsPage> {
 
   loadDataLogin() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-
     setState(() {});
     print('Test Print Data ${getProfileName}');
   }
@@ -32,13 +29,13 @@ class _SettingsPage extends State<SettingsPage> {
 
     try {
       final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-
+      await Future.delayed(const Duration(seconds: 1)); // simulasi delay
       await prefsAuth.remove('tokenlogin');
 
+      // Navigasi setelah logout
       Get.offAllNamed('/login');
     } catch (e) {
       print("Logout failed: $e");
-
       Get.snackbar('Error', 'Logout failed, please try again.');
       setState(() {
         _isLoading = false;
@@ -54,79 +51,113 @@ class _SettingsPage extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        padding: EdgeInsets.only(left: 16, top: 25, right: 16),
-        child: ListView(
-          children: [
-            Text(
-              "Settings",
-              style: TextStyle(
-                fontSize: 25,
-                fontWeight: FontWeight.w500,
-                color: Color(0xff232323),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              alignment: Alignment.center,
-              child: CircleAvatar(
-                radius: 35,
-                backgroundImage: urlProfilePic.isNotEmpty
-                    ? NetworkImage(urlProfilePic)
-                    : AssetImage('assets/images/user.png') as ImageProvider,
-              ),
-            ),
-            SizedBox(height: 16),
-            Text(
-              'Welcome,',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Color(0xff232323),
-              ),
-            ),
-            SizedBox(height: 5),
-            Text(
-              getProfileName.isNotEmpty ? getProfileName : 'User',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Color(0xff232323),
-              ),
-            ),
-            SizedBox(height: 50),
-            SizedBox(height: 10),
-            SizedBox(height: 50),
-            Center(
-              child: OutlinedButton(
-                onPressed: _isLoading ? null : _performLogout,
-                child: _isLoading
-                    ? SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: const Color.fromARGB(255, 218, 1, 1),
-                        ),
-                      )
-                    : Text(
-                        "Log Out",
-                        style: TextStyle(
-                          fontSize: 16,
-                          letterSpacing: 2.2,
-                          color: const Color.fromARGB(255, 218, 1, 1),
-                        ),
+    return Stack(
+      children: [
+        Scaffold(
+          body: Container(
+            padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
+            child: ListView(
+              children: [
+                const Text(
+                  "Settings",
+                  style: TextStyle(
+                    fontSize: 25,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff232323),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  alignment: Alignment.center,
+                  child: CircleAvatar(
+                    radius: 35,
+                    backgroundImage: urlProfilePic.isNotEmpty
+                        ? NetworkImage(urlProfilePic)
+                        : const AssetImage('assets/images/user.png')
+                              as ImageProvider,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'Welcome,',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xff232323),
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  getProfileName.isNotEmpty ? getProfileName : 'User',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff232323),
+                  ),
+                ),
+                const SizedBox(height: 50),
+                Center(
+                  child: OutlinedButton(
+                    onPressed: _isLoading ? null : _performLogout,
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(
+                        color: Color.fromARGB(255, 218, 1, 1),
                       ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 40,
+                        vertical: 12,
+                      ),
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Color.fromARGB(255, 218, 1, 1),
+                            ),
+                          )
+                        : const Text(
+                            "Log Out",
+                            style: TextStyle(
+                              fontSize: 16,
+                              letterSpacing: 2.2,
+                              color: Color.fromARGB(255, 218, 1, 1),
+                            ),
+                          ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+              ],
+            ),
+          ),
+        ),
+
+        // ✅ Overlay loading fullscreen
+        if (_isLoading)
+          Container(
+            color: Colors.black.withOpacity(0.5),
+            child: const Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(color: Colors.white),
+                  SizedBox(height: 16),
+                  Text(
+                    "Logging out...",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-            SizedBox(height: 30),
-            SizedBox(height: 16),
-          ],
-        ),
-      ),
+          ),
+      ],
     );
   }
 
@@ -158,13 +189,13 @@ class _SettingsPage extends State<SettingsPage> {
           builder: (BuildContext context) {
             return AlertDialog(
               title: Text(title),
-              content: Column(mainAxisSize: MainAxisSize.min),
+              content: const Column(mainAxisSize: MainAxisSize.min),
               actions: [
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  child: Text("Close"),
+                  child: const Text("Close"),
                 ),
               ],
             );
@@ -184,7 +215,7 @@ class _SettingsPage extends State<SettingsPage> {
                 color: Colors.grey[600],
               ),
             ),
-            Icon(Icons.arrow_forward_ios, color: Colors.grey),
+            const Icon(Icons.arrow_forward_ios, color: Colors.grey),
           ],
         ),
       ),

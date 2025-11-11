@@ -1,6 +1,6 @@
 // import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:flutter/material.dart';
-import 'package:poshaldin/assets.dart';
+import 'package:protopos/assets.dart';
 
 class mainStyle {
   static final productFont = TextStyle(

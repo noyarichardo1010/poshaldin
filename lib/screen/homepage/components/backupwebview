@@ -1,0 +1,264 @@
+import 'dart:convert';
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:poshaldin/controller/main_controller.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
+import 'package:flutter_thermal_printer/utils/printer.dart';
+import 'dart:typed_data';
+
+class WebViewScreen extends StatefulWidget {
+  final String url;
+  const WebViewScreen({super.key, required this.url});
+
+  @override
+  State<WebViewScreen> createState() => _WebViewScreenState();
+}
+
+class _WebViewScreenState extends State<WebViewScreen> {
+  late final WebViewController controller;
+  final MainController mainController = Get.find();
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..addJavaScriptChannel(
+        'ExitBridge',
+        onMessageReceived: (JavaScriptMessage message) {
+          _logout();
+        },
+      )
+      ..addJavaScriptChannel(
+        'PrintBridge',
+        onMessageReceived: (JavaScriptMessage message) {
+          _handlePrintRequest(message.message);
+        },
+      )
+      ..loadRequest(Uri.parse(widget.url));
+
+    mainController.webViewController = controller;
+  }
+
+  void _logout() async {
+    final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
+    await prefsAuth.remove('tokenlogin');
+    Get.offAllNamed('/login');
+  }
+
+  void _handlePrintRequest(String jsonPayload) {
+    try {
+      final Map<String, dynamic> receiptData = json.decode(jsonPayload);
+      Get.dialog(
+        PrintDialog(receiptData: receiptData),
+        barrierDismissible: false,
+      );
+    } catch (e) {
+      print("Error parsing print JSON: $e");
+      Get.snackbar(
+        "Error Print",
+        "Failed to process receipt data from the web",
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.reload();
+        },
+        child: SafeArea(child: WebViewWidget(controller: controller)),
+      ),
+    );
+  }
+}
+
+// -------------------------------------------------------------
+// PRINT DIALOG (menggunakan flutter_thermal_printer)
+// -------------------------------------------------------------
+class PrintDialog extends StatefulWidget {
+  final Map<String, dynamic> receiptData;
+  const PrintDialog({super.key, required this.receiptData});
+
+  @override
+  State<PrintDialog> createState() => _PrintDialogState();
+}
+
+class _PrintDialogState extends State<PrintDialog> {
+  final FlutterThermalPrinter _printer = FlutterThermalPrinter.instance;
+  List<Printer> _printers = [];
+  Printer? _selectedPrinter;
+  bool _isLoading = true;
+  String _status = "Scanning printers...";
+  StreamSubscription<List<Printer>>? _devicesSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _startScan();
+  }
+
+  void _startScan() async {
+    _devicesSubscription?.cancel();
+
+    // Pastikan izin bluetooth/usb sudah aktif
+    await _printer.getPrinters(
+      connectionTypes: [ConnectionType.USB, ConnectionType.BLE],
+    );
+
+    _devicesSubscription = _printer.devicesStream.listen((List<Printer> event) {
+      setState(() {
+        _printers = event;
+        _isLoading = false;
+        if (_printers.isEmpty) {
+          _status = "No printer found";
+        } else {
+          _status = "Select printer to print";
+          _selectedPrinter = _printers.first;
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _devicesSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _performPrint() async {
+    if (_selectedPrinter == null) {
+      Get.snackbar("Error", "Please select a printer first.");
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _status = "Connecting to printer...";
+    });
+
+    try {
+      await _printer.connect(_selectedPrinter!);
+
+      // Ambil data dari payload
+      final data = widget.receiptData;
+      final header = data['header'] ?? '';
+      final subHeader = data['sub_header'] ?? '';
+      final details = data['details'] ?? {};
+      final items = List<Map<String, dynamic>>.from(data['items'] ?? []);
+      final totals = data['totals'] ?? {};
+      final footer = data['footer'] ?? {};
+
+      // ESC/POS string builder
+      final buffer = StringBuffer();
+      buffer.writeln("********** $header **********");
+      buffer.writeln(subHeader);
+      buffer.writeln("-------------------------------");
+      buffer.writeln("Date: ${details['date'] ?? ''}");
+      buffer.writeln("Time: ${details['time'] ?? ''}");
+      buffer.writeln("Location: ${details['location'] ?? ''}");
+      buffer.writeln("Bill No: ${details['bill_no'] ?? ''}");
+      buffer.writeln("-------------------------------");
+
+      for (var item in items) {
+        buffer.writeln("${item['name']}");
+        buffer.writeln(
+          "${item['quantity_str']} x ${item['price_formatted']}  ${item['subtotal_formatted']}",
+        );
+      }
+
+      buffer.writeln("-------------------------------");
+      buffer.writeln("Subtotal      : ${totals['subtotal'] ?? ''}");
+      buffer.writeln("Discount      : ${totals['discount'] ?? ''}");
+      buffer.writeln("Tax           : ${totals['tax'] ?? ''}");
+      buffer.writeln("GRAND TOTAL   : ${totals['grand_total'] ?? ''}");
+      buffer.writeln("-------------------------------");
+      buffer.writeln("Payment Method: ${footer['payment_method'] ?? ''}");
+      buffer.writeln(footer['thank_you_note'] ?? "Thank you for your visit!");
+      buffer.writeln("\n\n\n");
+
+      await _printer.printData(
+        _selectedPrinter!,
+        Uint8List.fromList(buffer.toString().codeUnits),
+      );
+
+      // await _printer.printTextRaw(_selectedPrinter!, buffer.toString());
+
+      await _printer.disconnect(_selectedPrinter!);
+
+      Get.back();
+      Get.snackbar("Success", "Receipt printed successfully!");
+    } catch (e) {
+      print("Print error: $e");
+      setState(() {
+        _status = "Error: $e";
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Print Receipt"),
+      content: SizedBox(
+        width: 300,
+        child: _isLoading
+            ? Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 12),
+                  Text(_status),
+                ],
+              )
+            : _printers.isEmpty
+            ? Text(_status)
+            : Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  DropdownButton<Printer>(
+                    isExpanded: true,
+                    value: _selectedPrinter,
+                    items: _printers.map((printer) {
+                      return DropdownMenuItem(
+                        value: printer,
+                        child: Text(
+                          printer.name ??
+                              "Unknown (${printer.address ?? printer.vendorId ?? ''})",
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (printer) {
+                      setState(() {
+                        _selectedPrinter = printer;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  Text(_status),
+                ],
+              ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isLoading ? null : () => Get.back(),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: _isLoading ? null : _performPrint,
+          child: const Text("Print"),
+        ),
+      ],
+    );
+  }
+}

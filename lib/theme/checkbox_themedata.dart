@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:poshaldin/assets.dart';
+import 'package:protopos/assets.dart';
 
 CheckboxThemeData checkboxThemeData = CheckboxThemeData(
   checkColor: MaterialStateProperty.all(Colors.white),

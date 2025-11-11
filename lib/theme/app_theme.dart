@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:poshaldin/assets.dart';
-import 'package:poshaldin/theme/button_theme.dart';
-import 'package:poshaldin/theme/input_decoration_theme.dart';
+import 'package:protopos/assets.dart';
+import 'package:protopos/theme/button_theme.dart';
+import 'package:protopos/theme/input_decoration_theme.dart';
 
-import 'package:poshaldin/theme/checkbox_themedata.dart';
-import 'package:poshaldin/theme/theme_data.dart';
+import 'package:protopos/theme/checkbox_themedata.dart';
+import 'package:protopos/theme/theme_data.dart';
 
 class AppTheme {
   static ThemeData lightTheme(BuildContext context) {

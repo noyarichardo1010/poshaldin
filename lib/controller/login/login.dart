@@ -1,7 +1,7 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:poshaldin/const.dart';
+import 'package:protopos/const.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class loginRepo {

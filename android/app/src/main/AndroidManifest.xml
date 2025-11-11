@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="poshaldin"
+        android:label="ProtoPOS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
@@ -42,4 +42,20 @@
             <data android:mimeType="text/plain"/>
         </intent>
     </queries>
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <!-- Diperlukan mulai Android 12 (API 31) -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_SCAN"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!-- Optional untuk deteksi perangkat BLE -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" />
+
 </manifest>

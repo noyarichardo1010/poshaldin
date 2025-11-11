@@ -2,18 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:poshaldin/controller/main_controller.dart';
+import 'package:protopos/controller/main_controller.dart';
 
-import 'package:poshaldin/screen/auth/login.dart';
-import 'package:poshaldin/screen/homepage/home.dart';
-import 'package:poshaldin/screen/layouts/mainapp.dart';
-import 'package:poshaldin/screen/layouts/navigation.dart';
-import 'package:poshaldin/screen/settings/setting.dart';
+import 'package:protopos/screen/auth/login.dart';
+import 'package:protopos/screen/homepage/home.dart';
+import 'package:protopos/screen/layouts/mainapp.dart';
+import 'package:protopos/screen/layouts/navigation.dart';
+import 'package:protopos/screen/settings/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:icons_plus/icons_plus.dart';
 
-import 'package:poshaldin/theme/app_theme.dart';
+import 'package:protopos/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -62,7 +62,6 @@ class SplashScreen extends StatelessWidget {
             return const MyHomePage();
           } else {
             // return const MyHomePage();
-
             return const LoginScreen();
           }
         }
@@ -77,7 +76,6 @@ class SplashScreen extends StatelessWidget {
     if (tokenKey != null) {
       return true;
     } else {
-      print('TOKEN NULL');
       print('TOKEN == ${tokenKey}');
       return false;
     }
