@@ -33,7 +33,7 @@ class NavlistMenu extends StatelessWidget {
         //     child: Icon(Bootstrap.search, color: Color(0xFF606060), size: 20),
         //   ),
         // ),
-        // SizedBox(width: 16),
+        SizedBox(width: 16),
         // Ink(
         //   child: InkWell(
         //     onTap: () {

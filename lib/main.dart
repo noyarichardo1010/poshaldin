@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get_navigation/src/root/get_material_app.dart';
 
 import 'package:poshaldin/screen/auth/login.dart';
 import 'package:poshaldin/screen/homepage/home.dart';
@@ -9,6 +10,8 @@ import 'package:poshaldin/screen/settings/setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:icons_plus/icons_plus.dart';
+
+import 'package:poshaldin/theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,9 +26,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterNativeSplash.remove();
-    // return GetMaterialApp(
-    return MaterialApp(
-      // theme: AppTheme.lightTheme(context),
+    return GetMaterialApp(
+      theme: AppTheme.lightTheme(context),
       themeMode: ThemeMode.light,
 
       home: SplashScreen(),
@@ -35,8 +37,8 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/home': (context) => const MyHomePage(),
-
         '/login': (context) => const LoginScreen(),
+        '/settings': (context) => SettingsPage(),
       },
     );
   }
@@ -56,9 +58,9 @@ class SplashScreen extends StatelessWidget {
           if (snapshot.data != null && snapshot.data!) {
             return const MyHomePage();
           } else {
-            // return const MyHomePage();
+            return const MyHomePage();
 
-            return const LoginScreen();
+            // return const LoginScreen();
           }
         }
       },
@@ -72,7 +74,7 @@ class SplashScreen extends StatelessWidget {
     if (tokenKey != null) {
       return true;
     } else {
-      // print('TOKEN NULL');
+      print('TOKEN NULL');
       return false;
     }
   }
@@ -90,7 +92,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   late final List<Widget> _pages;
-  // final List<Widget> _pages = [MyHomePage(), MyHomePage(), new SettingsPage()];
   @override
   void initState() {
     super.initState();
@@ -101,13 +102,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     final url =
         ModalRoute.of(context)?.settings.arguments as String? ??
-        'https://cms.myhaldin.com';
-
-    _pages = [
-      homeView(url: url),
-      Container(child: Center(child: Text("others page"))),
-      SettingsPage(),
-    ];
+        // 'https://cms.myhaldin.com';
+        'https:google.com';
+    _pages = [homeView(url: url), SettingsPage(), SettingsPage()];
 
     return Scaffold(
       appBar: AppBar(
@@ -116,12 +113,12 @@ class _MyHomePageState extends State<MyHomePage> {
         elevation: 0,
         title: Row(
           children: [
-            // Image.asset(
-            //   'assets/logo/logo_400.png',
-            //   fit: BoxFit.contain,
-            //   height: 45,
-            //   alignment: Alignment.topLeft,
-            // ),
+            Image.asset(
+              'assets/logo/logo_400.png',
+              fit: BoxFit.contain,
+              height: 45,
+              alignment: Alignment.topLeft,
+            ),
             const SizedBox(width: 10),
           ],
         ),
@@ -137,23 +134,12 @@ class _MyHomePageState extends State<MyHomePage> {
         // unselectedLabelStyle: mainStyle.defaultFont,
         showUnselectedLabels: true,
         currentIndex: _currentIndex,
-        // onTap: (int index) {
-        //   if (index == 0) {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => homeView(url: url,)),
-        //     );
-        //   } else if (index == 1) {
-        //     Navigator.push(
-        //       context,
-        //       MaterialPageRoute(builder: (context) => SettingsPage()),
-        //     );
-        //   } else {
-        //     setState(() {
-        //       _currentIndex = index;
-        //     });
-        //   }
-        // },
+        onTap: (int index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Iconsax.home_hashtag, size: 25),
