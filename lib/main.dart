@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:poshaldin/controller/main_controller.dart';
 
 import 'package:poshaldin/screen/auth/login.dart';
 import 'package:poshaldin/screen/homepage/home.dart';
@@ -31,6 +33,7 @@ class MyApp extends StatelessWidget {
       themeMode: ThemeMode.light,
 
       home: SplashScreen(),
+      // home: SettingsPage(),
 
       // home: AuthLogin(),
       debugShowCheckedModeBanner: false,
@@ -92,6 +95,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
   late final List<Widget> _pages;
+  bool _isPagesInitialized = false;
+  final MainController mainController = Get.put(MainController());
+
   @override
   void initState() {
     super.initState();
@@ -99,13 +105,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final url =
-        ModalRoute.of(context)?.settings.arguments as String? ??
-        // 'https://cms.myhaldin.com';
-        'https:google.com';
-    _pages = [homeView(url: url), SettingsPage(), SettingsPage()];
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isPagesInitialized) {
+      final url =
+          ModalRoute.of(context)?.settings.arguments as String? ??
+          // 'https://cms.myhaldin.com';
+          'https://cms.myhaldin.com/proto-pos/cashier/app';
+      // 'https:google.com';
+      _pages = [homeView(url: url), SettingsPage(), SettingsPage()];
+      _isPagesInitialized = true;
+    }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
