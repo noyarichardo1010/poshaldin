@@ -127,10 +127,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
         },
         child: SafeArea(child: WebViewWidget(controller: controller)),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showTestPrintDialog,
-        tooltip: 'Test Print Dialog',
-        child: const Icon(Icons.print),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(right: 60.0),
+        child: FloatingActionButton(
+          onPressed: _showTestPrintDialog,
+          tooltip: 'Test Print Dialog',
+          child: const Icon(Icons.print, size: 22),
+        ),
       ),
     );
   }
