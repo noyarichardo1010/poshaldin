@@ -19,24 +19,25 @@ class _SettingsPage extends State<SettingsPage> {
   loadDataLogin() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
     setState(() {});
-    print('Test Print Data ${getProfileName}');
+    print('Test Print Data $getProfileName');
   }
 
   _performLogout() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
+      setState(() {
+        _isLoading = true;
+      });
+
       final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
       await Future.delayed(const Duration(seconds: 1)); // simulasi delay
       await prefsAuth.remove('tokenlogin');
 
-      // Navigasi setelah logout
+      // direct after logout
       Get.offAllNamed('/login');
     } catch (e) {
       print("Logout failed: $e");
       Get.snackbar('Error', 'Logout failed, please try again.');
+    } finally {
       setState(() {
         _isLoading = false;
       });
@@ -97,10 +98,50 @@ class _SettingsPage extends State<SettingsPage> {
                     color: Color(0xff232323),
                   ),
                 ),
-                const SizedBox(height: 50),
+                SizedBox(height: 22),
+                Row(
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        // Get.to(() => AddressForm());
+                      },
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          SizedBox(
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Printer Setting',
+                                  textAlign: TextAlign.start,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w400,
+                                    color: Color(0xff232323),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Container(
+                        alignment: Alignment.centerRight,
+                        child: Column(
+                          children: [
+                            Icon(Icons.keyboard_arrow_right, size: 20),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
                 Center(
                   child: OutlinedButton(
-                    onPressed: _isLoading ? null : _performLogout,
+                    onPressed: _performLogout,
                     style: OutlinedButton.styleFrom(
                       side: const BorderSide(
                         color: Color.fromARGB(255, 218, 1, 1),
@@ -110,23 +151,14 @@ class _SettingsPage extends State<SettingsPage> {
                         vertical: 12,
                       ),
                     ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Color.fromARGB(255, 218, 1, 1),
-                            ),
-                          )
-                        : const Text(
-                            "Log Out",
-                            style: TextStyle(
-                              fontSize: 16,
-                              letterSpacing: 2.2,
-                              color: Color.fromARGB(255, 218, 1, 1),
-                            ),
-                          ),
+                    child: const Text(
+                      "Log Out",
+                      style: TextStyle(
+                        fontSize: 16,
+                        letterSpacing: 2.2,
+                        color: Color.fromARGB(255, 218, 1, 1),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -135,7 +167,7 @@ class _SettingsPage extends State<SettingsPage> {
           ),
         ),
 
-        // ✅ Overlay loading fullscreen
+        // Overlay loading
         if (_isLoading)
           Container(
             color: Colors.black.withOpacity(0.5),
