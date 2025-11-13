@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:protopos/controller/main_controller.dart';
+
+import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _SettingsPage extends State<SettingsPage> {
 
       final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
       await Future.delayed(const Duration(seconds: 1)); // simulasi delay
-      await prefsAuth.remove('tokenlogin');
+      await prefsAuth.remove('keylogin');
 
       // direct after logout
       Get.offAllNamed('/login');

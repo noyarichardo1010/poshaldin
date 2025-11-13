@@ -5,7 +5,7 @@ import 'package:protopos/const.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class loginRepo {
-  String? tokenLogin;
+  String? keyLogin;
   final _baseurl = baseUrl;
   Future<Map<String, dynamic>> getToken(dynamic _userName, _password) async {
     try {
@@ -21,14 +21,14 @@ class loginRepo {
         print('PRINT LOGIN RESPONSE $itemAuth');
         final SharedPreferences prefsAuth =
             await SharedPreferences.getInstance();
-        await prefsAuth.setString('tokenlogin', itemAuth['login_url']);
+        await prefsAuth.setString('keylogin', itemAuth['login_url']);
 
         // final List<String>? testprintdatalogin = prefsAuth.getStringList(
-        //   'tokenlogin',
+        //   'keylogin',
         // );
-        tokenLogin = prefsAuth.getString('tokenlogin');
+        keyLogin = prefsAuth.getString('keylogin');
 
-        print('TEST PRINT DATA LOGIN ==== ${tokenLogin}');
+        print('TEST PRINT DATA LOGIN ==== ${keyLogin}');
 
         return {'success': true, 'login_url': responseBody['login_url']};
       } else {

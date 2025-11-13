@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:protopos/assets.dart';
 
-class mainStyle {
+class MainStyle {
   static final productFont = TextStyle(
     decoration: TextDecoration.none,
     fontFamily: grandisExtendedFont,

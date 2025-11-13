@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
-import 'package:protopos/controller/main_controller.dart';
+
+import 'package:protopos/controller/webview/viewcontrol.dart';
 
 import 'package:protopos/screen/auth/login.dart';
 import 'package:protopos/screen/homepage/home.dart';
@@ -71,12 +72,12 @@ class SplashScreen extends StatelessWidget {
 
   Future<bool?> redirectPage() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    final String? tokenKey = prefsAuth.getString('tokenlogin');
-    // await prefsAuth.remove('tokenKey2');
-    if (tokenKey != null) {
+    final String? magicKey = prefsAuth.getString('keylogin');
+    // await prefsAuth.remove('magicKey');
+    if (magicKey != null) {
       return true;
     } else {
-      print('TOKEN == ${tokenKey}');
+      print('magicKey == ${magicKey}');
       return false;
     }
   }
@@ -110,8 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
       final url =
           ModalRoute.of(context)?.settings.arguments as String? ??
           // 'https://cms.myhaldin.com';
-          'https://cms.myhaldin.com/proto-pos/cashier/app';
-      // 'https:google.com';
+          'https://cms.myhaldin.com/proto-pos/cashier/setup?source=app';
       _pages = [homeView(url: url), SettingsPage(), SettingsPage()];
       _isPagesInitialized = true;
     }
@@ -142,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         // backgroundColor: Colors.blue,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: mainStyle.colorBlue,
+        selectedItemColor: MainStyle.colorBlue,
         unselectedItemColor: Colors.grey,
         // unselectedLabelStyle: mainStyle.defaultFont,
         showUnselectedLabels: true,

@@ -1,10 +1,10 @@
 import 'dart:convert';
 
-// Fungsi helper untuk menjalankan decode
+// helper decode
 ReceiptData receiptDataFromJson(String str) =>
     ReceiptData.fromJson(json.decode(str));
 
-// 1. Model Utama
+// Msain Model
 class ReceiptData {
   String header;
   String subHeader;
@@ -34,7 +34,7 @@ class ReceiptData {
   );
 }
 
-// 2. Model Detail
+// Model details
 class ReceiptDetails {
   String date;
   String time;
@@ -56,7 +56,7 @@ class ReceiptDetails {
   );
 }
 
-// 3. Model Footer
+// Model Footer
 class ReceiptFooter {
   String paymentMethod;
   String thankYouNote;
@@ -69,7 +69,7 @@ class ReceiptFooter {
   );
 }
 
-// 4. Model Item (Produk)
+// Model Item Products
 class ReceiptItem {
   String name;
   String quantityStr;
@@ -94,7 +94,7 @@ class ReceiptItem {
   );
 }
 
-// 5. Model Total
+// Model Total
 class ReceiptTotals {
   String subtotal;
   String discount;

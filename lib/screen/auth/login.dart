@@ -41,13 +41,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
   checkToken() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    final String? tokenKey = prefsAuth.getString('tokenKey2');
-    if (tokenKey == null) {
+    final String? urlKey = prefsAuth.getString('keylogin');
+    if (urlKey == null) {
       // print('empty');
     } else {
       // print('exist');
     }
-    // print('PRINT TOKEN $tokenKey');
+    print('PRINT TOKEN $urlKey');
   }
 
   final emailController = TextEditingController(text: '');

@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:protopos/controller/main_controller.dart';
+
+import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
@@ -50,7 +51,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
 
   void _logout() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    await prefsAuth.remove('tokenlogin');
+    await prefsAuth.remove('keylogin');
     Get.offAllNamed('/login');
   }
 
@@ -66,7 +67,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
-          content: Text('Failed to process receipt data from the web'),
+          content: Text('Failed to process receipt data from the pos'),
         ),
       );
       // Get.snackbar(
