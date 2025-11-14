@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:protopos/screen/settings/print/index.dart';
 
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -104,7 +105,7 @@ class _SettingsPage extends State<SettingsPage> {
                   children: [
                     TextButton(
                       onPressed: () {
-                        // Get.to(() => AddressForm());
+                        Get.to(() => const PrintPage());
                       },
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
