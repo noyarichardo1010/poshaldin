@@ -2,13 +2,13 @@ import 'dart:convert';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:protopos/controller/print/receipt_data.dart';
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
-import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+// import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,6 +23,7 @@ class WebViewScreen extends StatefulWidget {
 class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController controller;
   final MainController mainController = Get.find();
+  List<String> printBridgeLogs = [];
 
   @override
   void initState() {
@@ -40,8 +41,11 @@ class _WebViewScreenState extends State<WebViewScreen> {
       ..addJavaScriptChannel(
         'PrintBridge',
         onMessageReceived: (JavaScriptMessage message) {
+          debugPrint("====Payload===: ${message.message}");
+          setState(() {
+            printBridgeLogs.add(message.message);
+          });
           _handlePrintRequest(message.message);
-          print("====Payload===: ${message.message}");
         },
       )
       ..loadRequest(Uri.parse(widget.url));
@@ -63,7 +67,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
         barrierDismissible: false,
       );
     } catch (e) {
-      print("Error parsing print JSON: $e");
+      debugPrint("Error parsing print JSON: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: Colors.red,
@@ -79,44 +83,47 @@ class _WebViewScreenState extends State<WebViewScreen> {
     }
   }
 
-  void _showTestPrintDialog() {
-    const String dummyJsonPayload = '''
-    {
-        "header": "Talasi",
-        "sub_header": "Original Receipt",
-        "details": {
-            "date": "11-11-2025",
-            "time": "19:59:00",
-            "location": "Test Location",
-            "bill_no": "TEST-001"
-        },
-        "items": [
-            {
-                "name": "Test Product A",
-                "quantity_str": "1",
-                "price_formatted": "10.000",
-                "subtotal_formatted": "10.000"
+  void _showPrintBridgeLogs() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Log PrintBridge (${printBridgeLogs.length})"),
+        content: SizedBox(
+          width: double.maxFinite,
+          height: 300,
+          child: printBridgeLogs.isEmpty
+              ? Center(child: Text("Belum ada pesan dari Web."))
+              : ListView.builder(
+                  itemCount: printBridgeLogs.length,
+                  itemBuilder: (context, index) {
+                    final log = printBridgeLogs[index];
+                    return Card(
+                      margin: EdgeInsets.only(bottom: 8),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text(log, style: TextStyle(fontSize: 13)),
+                      ),
+                    );
+                  },
+                ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              setState(() {
+                printBridgeLogs.clear();
+              });
+              Navigator.pop(context);
             },
-            {
-                "name": "Test Product B",
-                "quantity_str": "2",
-                "price_formatted": "5.000",
-                "subtotal_formatted": "10.000"
-            }
+            child: Text("Clear"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Tutup"),
+          ),
         ],
-        "totals": {
-            "subtotal": "Rp 20.000",
-            "discount": "Rp 0",
-            "tax": "Rp 2.000",
-            "grand_total": "Rp 22.000"
-        },
-        "footer": {
-            "payment_method": "Test",
-            "thank_you_note": "Thank you for testing!"
-        }
-    }
-    ''';
-    _handlePrintRequest(dummyJsonPayload);
+      ),
+    );
   }
 
   @override
@@ -128,13 +135,42 @@ class _WebViewScreenState extends State<WebViewScreen> {
         },
         child: SafeArea(child: WebViewWidget(controller: controller)),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(right: 60.0),
-        child: FloatingActionButton(
-          onPressed: _showTestPrintDialog,
-          tooltip: 'Test Print Dialog',
-          child: const Icon(Icons.print, size: 22),
-        ),
+
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: "btnLog",
+            // onPressed: () => _showPrintBridgeLogs(),
+            onPressed: () {
+              controller.runJavaScript("""
+            PrintBridge.postMessage(JSON.stringify({
+              test: "coba PrintBridge",
+              time: "${DateTime.now()}"
+            }));
+          """);
+              _showPrintBridgeLogs();
+            },
+
+            tooltip: 'Lihat Log PrintBridge',
+            child: const Icon(Icons.list),
+          ),
+          SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: "btnTestBridge",
+            onPressed: () {
+              controller.runJavaScript("""
+            PrintBridge.postMessage(JSON.stringify({
+              test: "coba PrintBridge",
+              time: "${DateTime.now()}"
+            }));
+          """);
+            },
+            tooltip: 'Test PrintBridge',
+            child: const Icon(Icons.bug_report),
+          ),
+          SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -312,11 +348,11 @@ class _PrintDialogState extends State<PrintDialog> {
           PosColumn(
             text:
                 "  ${get(item['quantity_str'])} x ${get(item['price_formatted'])}",
-            width: 6,
+            width: 12,
           ),
           PosColumn(
             text: get(item['subtotal_formatted']),
-            width: 6,
+            width: 12,
             styles: const PosStyles(align: PosAlign.right),
           ),
         ]);
@@ -325,16 +361,16 @@ class _PrintDialogState extends State<PrintDialog> {
       bytes += generator.hr();
       final totals = data['totals'] ?? {};
       bytes += generator.row([
-        PosColumn(text: 'Subtotal', width: 6),
-        PosColumn(text: get(totals['subtotal']), width: 6),
+        PosColumn(text: 'Subtotal', width: 4),
+        PosColumn(text: get(totals['subtotal']), width: 8),
       ]);
       bytes += generator.row([
-        PosColumn(text: 'Discount', width: 6),
-        PosColumn(text: get(totals['discount']), width: 6),
+        PosColumn(text: 'Discount', width: 4),
+        PosColumn(text: get(totals['discount']), width: 8),
       ]);
       bytes += generator.row([
-        PosColumn(text: 'Tax', width: 6),
-        PosColumn(text: get(totals['tax']), width: 6),
+        PosColumn(text: 'Tax', width: 4),
+        PosColumn(text: get(totals['tax']), width: 8),
       ]);
       bytes += generator.hr(ch: ' ');
       bytes += generator.row([
@@ -379,7 +415,7 @@ class _PrintDialogState extends State<PrintDialog> {
         ),
       );
     } catch (e) {
-      print("Print error: $e");
+      debugPrint("Print error: $e");
       setState(() {
         _status = "Error: $e";
       });
