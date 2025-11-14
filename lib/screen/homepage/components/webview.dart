@@ -349,12 +349,13 @@ class _PrintDialogState extends State<PrintDialog> {
             text:
                 "  ${get(item['quantity_str'])} x ${get(item['price_formatted'])}",
             width: 12,
+            styles: PosStyles(align: PosAlign.right),
           ),
-          PosColumn(
-            text: get(item['subtotal_formatted']),
-            width: 12,
-            styles: const PosStyles(align: PosAlign.right),
-          ),
+          // PosColumn(
+          //   text: get(item['subtotal_formatted']),
+          //   width: 12,
+          //   styles: const PosStyles(align: PosAlign.right),
+          // ),
         ]);
       }
 
@@ -369,6 +370,10 @@ class _PrintDialogState extends State<PrintDialog> {
         PosColumn(text: get(totals['discount']), width: 8),
       ]);
       bytes += generator.row([
+        PosColumn(text: 'Gratuity', width: 4),
+        PosColumn(text: get(totals['gratuity']), width: 8),
+      ]);
+      bytes += generator.row([
         PosColumn(text: 'Tax', width: 4),
         PosColumn(text: get(totals['tax']), width: 8),
       ]);
@@ -376,12 +381,16 @@ class _PrintDialogState extends State<PrintDialog> {
       bytes += generator.row([
         PosColumn(
           text: 'GRAND TOTAL',
-          width: 6,
-          styles: const PosStyles(bold: true, height: PosTextSize.size2),
+          width: 4,
+          styles: const PosStyles(
+            bold: true,
+            height: PosTextSize.size2,
+            align: PosAlign.left,
+          ),
         ),
         PosColumn(
           text: get(totals['grand_total']),
-          width: 6,
+          width: 8,
           styles: const PosStyles(
             align: PosAlign.right,
             bold: true,
@@ -401,7 +410,7 @@ class _PrintDialogState extends State<PrintDialog> {
         get(footer['thank_you_note'], "Thank you for your purchase!"),
         styles: const PosStyles(align: PosAlign.center),
       );
-      bytes += generator.feed(3);
+      bytes += generator.feed(1);
       bytes += generator.cut();
 
       await _printer.printData(_selectedPrinter!, bytes);
