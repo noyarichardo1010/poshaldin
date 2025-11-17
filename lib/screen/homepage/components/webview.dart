@@ -3,11 +3,15 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:protopos/assets.dart';
+// import 'package:protopos/controller/print/receipt_data.dart';
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
+// import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
+
+// import 'package:permission_handler/permission_handler.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -84,7 +88,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
     // Show loading dialog
     Get.dialog(
       const PopScope(
-        canPop: false,
+        canPop: true,
         child: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -95,8 +99,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 "Printing, please wait...",
                 style: TextStyle(
                   color: whiteColor,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
+                  fontSize: 16,
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -111,6 +114,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
     final savedPrinterJson = prefs.getString('selected_printer');
 
     if (savedPrinterJson == null) {
+      if (Get.isDialogOpen!) {
+        Get.back(); // Close the loading dialog
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: errorColor,
@@ -133,6 +139,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
     );
 
     final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
+
     try {
       await printer.connect(selectedPrinter);
       final profile = await CapabilityProfile.load();
