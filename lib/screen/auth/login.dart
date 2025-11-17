@@ -27,15 +27,6 @@ LoginRepo repository = LoginRepo();
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  // void getTokenAdmin() async {
-  //   // final responseAdminToken = await repositoryKey.getTokenAdmin();
-  //   // final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-
-  //   // tokenKeyAdmin = prefsAuth.getString('tokenKeyAdmin');
-  //   // await prefsAuth.remove('tokenKeyAdmin');
-  //   // print('test print token Admin $tokenKeyAdmin');
-  // }
-
   checkToken() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
     final String? urlKey = prefsAuth.getString('keylogin');
@@ -52,23 +43,6 @@ class _LoginScreenState extends State<LoginScreen> {
   // final context = TextEditingController(text: '');
   var validate;
   String? tokenKey;
-
-  // void _doSomething(RoundedLoadingButtonController controller) async {
-  //   Timer(Duration(seconds: 5), () {
-  //     controller.success();
-  //     // CircularProgressIndicator(
-  //     //   backgroundColor: Colors.amber,
-  //     // );
-  //     // Navigator.pushNamed(context, '/home');
-  //     if (controller != true) {
-  //       // print(controller);
-  //       Navigator.pushNamed(context, '/home');
-  //     } else {
-  //       Navigator.pushNamed(context, '/login');
-  //       // print(controller);
-  //     }
-  //   });
-  // }
 
   Future<Map<String, dynamic>> loginSetAuth() async {
     return await repository.getToken(

@@ -35,6 +35,36 @@ class _SettingsPage extends State<SettingsPage> {
     _loadDataUser();
   }
 
+  _showLogoutConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Logout'),
+          content: const Text(
+            'Are you sure you want to logout?',
+            style: TextStyle(color: darkGreyColor),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('No', style: TextStyle(color: whileColor60)),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Yes'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _performLogout();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   _performLogout() async {
     try {
       setState(() {
@@ -133,7 +163,7 @@ class _SettingsPage extends State<SettingsPage> {
                 const SizedBox(height: 30),
                 Center(
                   child: OutlinedButton(
-                    onPressed: _performLogout,
+                    onPressed: _showLogoutConfirmationDialog,
                     // style: OutlinedButton.styleFrom(
                     //   side: const BorderSide(color: errorColor),
                     //   padding: const EdgeInsets.symmetric(
