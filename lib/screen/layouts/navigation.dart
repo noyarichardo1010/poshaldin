@@ -1,14 +1,8 @@
-// import 'dart:convert';
-
 import 'package:flutter/material.dart';
-// import 'package:get/get.dart';
-
-// import 'package:icons_plus/icons_plus.dart';
-// import 'package:page_transition/page_transition.dart';
 import 'package:protopos/assets.dart';
 
 class NavlistMenu extends StatelessWidget {
-  const NavlistMenu({Key? key}) : super(key: key);
+  const NavlistMenu({super.key});
 
   @override
   Widget build(BuildContext context) {

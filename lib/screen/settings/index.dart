@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:protopos/assets.dart';
 import 'package:protopos/screen/settings/print/index.dart';
-
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,16 +15,24 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPage extends State<SettingsPage> {
-  String urlProfilePic = '';
-  var getProfileName = '';
+  String getProfileName = '';
+  var urlProfilePic = '';
   final MainController mainController = Get.find();
-
   bool _isLoading = false;
 
-  loadDataLogin() async {
-    final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
-    setState(() {});
-    print('Test Print Data $getProfileName');
+  _loadDataUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? userData = prefs.getStringList('userdata');
+    setState(() {
+      getProfileName = '${userData?[0]}';
+      urlProfilePic = '${userData?[1]}';
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDataUser();
   }
 
   _performLogout() async {
@@ -37,23 +44,18 @@ class _SettingsPage extends State<SettingsPage> {
       final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
       await Future.delayed(const Duration(seconds: 1)); // simulasi delay
       await prefsAuth.remove('keylogin');
+      await prefsAuth.remove('userdata');
 
       // direct after logout
       Get.offAllNamed('/login');
     } catch (e) {
-      print("Logout failed: $e");
+      debugPrint("Logout failed: $e");
       Get.snackbar('Error', 'Logout failed, please try again.');
     } finally {
       setState(() {
         _isLoading = false;
       });
     }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    loadDataLogin();
   }
 
   @override
@@ -80,7 +82,7 @@ class _SettingsPage extends State<SettingsPage> {
                     radius: 35,
                     backgroundImage: urlProfilePic.isNotEmpty
                         ? NetworkImage(urlProfilePic)
-                        : const AssetImage('assets/images/user.png')
+                        : const AssetImage('assets/icons/user.png')
                               as ImageProvider,
                   ),
                 ),
@@ -112,34 +114,18 @@ class _SettingsPage extends State<SettingsPage> {
                         Get.to(() => const PrintPage());
                       },
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          SizedBox(
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Printer Setting',
-                                  textAlign: TextAlign.start,
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w400,
-                                    color: darkGreyColor,
-                                  ),
-                                ),
-                              ],
+                          Text(
+                            'Printer Setting',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                              color: darkGreyColor,
                             ),
                           ),
+                          Icon(Icons.keyboard_arrow_right, size: 20),
                         ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Container(
-                        alignment: Alignment.centerRight,
-                        child: Column(
-                          children: [
-                            Icon(Icons.keyboard_arrow_right, size: 20),
-                          ],
-                        ),
                       ),
                     ),
                   ],

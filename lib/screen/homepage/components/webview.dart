@@ -11,7 +11,7 @@ import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
 // import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
 
-import 'package:permission_handler/permission_handler.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -62,10 +62,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
   void _handlePrintRequest(String jsonPayload) {
     try {
       final Map<String, dynamic> receiptData = json.decode(jsonPayload);
-      Get.dialog(
-        PrintDialog(receiptData: receiptData),
-        barrierDismissible: false,
-      );
+      _printReceipt(receiptData);
     } catch (e) {
       debugPrint("Error parsing print JSON: $e");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -74,198 +71,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
           content: Text('Failed to process receipt data from the pos'),
         ),
       );
-      // Get.snackbar(
-      //   "Error Print",
-      //   "Failed to process receipt data from the web",
-      //   backgroundColor: Colors.red,
-      //   colorText: Colors.white,
-      // );
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: () async {
-          await controller.reload();
-        },
-        child: SafeArea(child: WebViewWidget(controller: controller)),
-      ),
-
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     // FloatingActionButton(
-      //     //   heroTag: "btnLog",
-      //     //   // onPressed: () => _showPrintBridgeLogs(),
-      //     //   onPressed: () {
-      //     //     controller.runJavaScript("""
-      //     //   PrintBridge.postMessage(JSON.stringify({
-      //     //     test: "coba PrintBridge",
-      //     //     time: "${DateTime.now()}"
-      //     //   }));
-      //     // """);
-      //     //     _showPrintBridgeLogs();
-      //     //   },
-
-      //     //   tooltip: 'Lihat Log PrintBridge',
-      //     //   child: const Icon(Icons.list),
-      //     // ),
-      //     // SizedBox(height: 16),
-      //     // FloatingActionButton(
-      //     //   heroTag: "btnTestBridge",
-      //     //   onPressed: () {
-      //     //     controller.runJavaScript("""
-      //     //   PrintBridge.postMessage(JSON.stringify({
-      //     //     test: "coba PrintBridge",
-      //     //     time: "${DateTime.now()}"
-      //     //   }));
-      //     // """);
-      //     //   },
-      //     //   tooltip: 'Test PrintBridge',
-      //     //   child: const Icon(Icons.bug_report),
-      //     // ),
-      //     // SizedBox(height: 16),
-      //   ],
-      // ),
-    );
-  }
-}
-
-// -------------------------------------------------------------
-// PRINT DIALOG
-// -------------------------------------------------------------
-class PrintDialog extends StatefulWidget {
-  final Map<String, dynamic> receiptData;
-  const PrintDialog({super.key, required this.receiptData});
-
-  @override
-  State<PrintDialog> createState() => _PrintDialogState();
-}
-
-class _PrintDialogState extends State<PrintDialog> {
-  final FlutterThermalPrinter _printer = FlutterThermalPrinter.instance;
-  List<Printer> _printers = [];
-  Printer? _selectedPrinter;
-  bool _isLoading = true;
-  bool _isPrinting = false;
-  bool _isAutoPrinting = false;
-  String _status = "Initializing...";
-  StreamSubscription<List<Printer>>? _devicesSubscription;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSavedPrinterAndPrint();
-  }
-
-  Future<void> _loadSavedPrinterAndPrint() async {
-    final prefs = await SharedPreferences.getInstance();
-    final savedPrinterJson = prefs.getString('selected_printer');
-
-    if (savedPrinterJson != null) {
-      final printerMap = json.decode(savedPrinterJson);
-      final savedPrinter = Printer(
-        name: printerMap['name'],
-        address: printerMap['address'],
-        connectionType: ConnectionType.values.firstWhere(
-          (e) => e.toString() == printerMap['connectionType'],
-        ),
-      );
-      setState(() {
-        _selectedPrinter = savedPrinter;
-        _isAutoPrinting = true;
-        _status = "Printing to saved printer: ${savedPrinter.name}";
-      });
-      await _performPrint();
-    } else {
-      // No saved printer, proceed with scanning
-      _startScan();
-    }
-  }
-
-  Future<void> _checkBluetoothPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
-      Permission.bluetoothScan,
-      Permission.bluetoothConnect,
-      Permission.location,
-    ].request();
-
-    bool allGranted = statuses.values.every((status) => status.isGranted);
-
-    if (!allGranted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: errorColor,
-          content: Text(
-            'Please grant Bluetooth and Location permissions to scan printers.',
-          ),
-        ),
-      );
-
-      return;
-    }
-  }
-
-  void _startScan() async {
-    setState(() {
-      _isLoading = true;
-      _status = "Checking permissions...";
-    });
-
-    await _checkBluetoothPermissions();
-
-    setState(() {
-      _isLoading = true;
-      _status = "Scanning printers...";
-      _printers = [];
-    });
-
-    _devicesSubscription?.cancel();
-
-    try {
-      await _printer.getPrinters(
-        connectionTypes: [
-          ConnectionType.USB,
-          ConnectionType.BLE,
-          ConnectionType.NETWORK,
-        ],
-      );
-
-      _devicesSubscription = _printer.devicesStream.listen(
-        (List<Printer> event) {
-          setState(() {
-            _printers = event;
-            _isLoading = false;
-            if (_printers.isEmpty) {
-              _status =
-                  "No printer found.\nEnsure printer is paired in Bluetooth Settings.";
-            } else {
-              _status = "Select printer to print";
-              _selectedPrinter ??= _printers.first;
-            }
-          });
-        },
-        onError: (e) {
-          setState(() {
-            _isLoading = false;
-            _status = "Error scanning: $e";
-          });
-        },
-      );
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _status = "Scan failed: $e";
-      });
-    }
-  }
-
-  @override
-  void dispose() {
-    _devicesSubscription?.cancel();
-    super.dispose();
   }
 
   String get(dynamic key, [String defaultValue = '']) {
@@ -273,30 +79,38 @@ class _PrintDialogState extends State<PrintDialog> {
     return key.toString();
   }
 
-  Future<void> _performPrint() async {
-    if (_selectedPrinter == null) {
-      // Get.snackbar("Error", "Please select a printer first.");
+  Future<void> _printReceipt(Map<String, dynamic> data) async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPrinterJson = prefs.getString('selected_printer');
+
+    if (savedPrinterJson == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.red,
-          content: Text('Please select a printer first.'),
+        const SnackBar(
+          backgroundColor: errorColor,
+          content: Text(
+            'Please setup your printer in settings, then reprint from Reports Menu',
+          ),
+          duration: Duration(seconds: 3),
         ),
       );
       return;
     }
 
-    setState(() {
-      _isPrinting = true; //loading
-      _status = "Printing in progress...";
-    });
+    final printerMap = json.decode(savedPrinterJson);
+    final selectedPrinter = Printer(
+      name: printerMap['name'],
+      address: printerMap['address'],
+      connectionType: ConnectionType.values.firstWhere(
+        (e) => e.toString() == printerMap['connectionType'],
+      ),
+    );
 
+    final FlutterThermalPrinter printer = FlutterThermalPrinter.instance;
     try {
-      await _printer.connect(_selectedPrinter!);
+      await printer.connect(selectedPrinter);
       final profile = await CapabilityProfile.load();
       final generator = Generator(PaperSize.mm80, profile);
       List<int> bytes = [];
-
-      final data = widget.receiptData;
 
       bytes += generator.text(
         get(data['header']),
@@ -342,11 +156,6 @@ class _PrintDialogState extends State<PrintDialog> {
             width: 12,
             styles: PosStyles(align: PosAlign.right),
           ),
-          // PosColumn(
-          //   text: get(item['subtotal_formatted']),
-          //   width: 12,
-          //   styles: const PosStyles(align: PosAlign.right),
-          // ),
         ]);
       }
 
@@ -420,11 +229,9 @@ class _PrintDialogState extends State<PrintDialog> {
       bytes += generator.feed(0);
       bytes += generator.cut();
 
-      await _printer.printData(_selectedPrinter!, bytes);
-      await _printer.disconnect(_selectedPrinter!);
+      await printer.printData(selectedPrinter, bytes);
+      await printer.disconnect(selectedPrinter);
 
-      Get.back();
-      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: successColor,
@@ -433,62 +240,66 @@ class _PrintDialogState extends State<PrintDialog> {
       );
     } catch (e) {
       debugPrint("Print error: $e");
-      if (mounted) {
-        setState(() {
-          _status = "Error: $e";
-        });
-      }
-      // If auto-printing fails, close the dialog and show an error.
-      if (_isAutoPrinting) {
-        Get.back();
-        // ignore: use_build_context_synchronously
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: errorColor,
-            content: Text(
-              'Could not connect to saved printer. Please check printer status or change printer in settings.',
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: errorColor,
+          content: Text(
+            'Could not connect to saved printer. Please check printer status or change printer in settings.',
           ),
-        );
-      }
+        ),
+      );
       try {
-        await _printer.disconnect(_selectedPrinter!);
+        await printer.disconnect(selectedPrinter);
       } catch (_) {}
-    } finally {
-      setState(() {
-        _isPrinting = false;
-      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // overlay loading print
-        if (_isPrinting)
-          Container(
-            color: Colors.black54,
-            child: const Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  CircularProgressIndicator(color: whiteColor),
-                  SizedBox(height: 16),
-                  Text(
-                    "Printing, please wait...",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: whiteColor,
-                      fontSize: 12,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-      ],
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await controller.reload();
+        },
+        child: SafeArea(child: WebViewWidget(controller: controller)),
+      ),
+
+      // floatingActionButton: Column(
+      //   mainAxisAlignment: MainAxisAlignment.end,
+      //   children: [
+      //     // FloatingActionButton(
+      //     //   heroTag: "btnLog",
+      //     //   // onPressed: () => _showPrintBridgeLogs(),
+      //     //   onPressed: () {
+      //     //     controller.runJavaScript("""
+      //     //   PrintBridge.postMessage(JSON.stringify({
+      //     //     test: "coba PrintBridge",
+      //     //     time: "${DateTime.now()}"
+      //     //   }));
+      //     // """);
+      //     //     _showPrintBridgeLogs();
+      //     //   },
+
+      //     //   tooltip: 'Lihat Log PrintBridge',
+      //     //   child: const Icon(Icons.list),
+      //     // ),
+      //     // SizedBox(height: 16),
+      //     // FloatingActionButton(
+      //     //   heroTag: "btnTestBridge",
+      //     //   onPressed: () {
+      //     //     controller.runJavaScript("""
+      //     //   PrintBridge.postMessage(JSON.stringify({
+      //     //     test: "coba PrintBridge",
+      //     //     time: "${DateTime.now()}"
+      //     //   }));
+      //     // """);
+      //     //   },
+      //     //   tooltip: 'Test PrintBridge',
+      //     //   child: const Icon(Icons.bug_report),
+      //     // ),
+      //     // SizedBox(height: 16),
+      //   ],
+      // ),
     );
   }
 }
