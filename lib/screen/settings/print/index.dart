@@ -275,7 +275,7 @@ class _PrintPageState extends State<PrintPage> {
                 ],
               ),
             const SizedBox(height: 16),
-            Text(_status, style: Theme.of(context).textTheme.bodySmall),
+            // Text(_status, style: Theme.of(context).textTheme.bodySmall),
           ],
         ),
       ),

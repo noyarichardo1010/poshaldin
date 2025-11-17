@@ -23,7 +23,7 @@ class WebViewScreen extends StatefulWidget {
 class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController controller;
   final MainController mainController = Get.find();
-  List<String> printBridgeLogs = [];
+  // List<String> printBridgeLogs = [];
 
   @override
   void initState() {
@@ -42,9 +42,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
         'PrintBridge',
         onMessageReceived: (JavaScriptMessage message) {
           debugPrint("====Payload===: ${message.message}");
-          setState(() {
-            printBridgeLogs.add(message.message);
-          });
+          // setState(() {
+          //   printBridgeLogs.add(message.message);
+          // });
           _handlePrintRequest(message.message);
         },
       )
@@ -83,48 +83,48 @@ class _WebViewScreenState extends State<WebViewScreen> {
     }
   }
 
-  void _showPrintBridgeLogs() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text("Log PrintBridge (${printBridgeLogs.length})"),
-        content: SizedBox(
-          width: double.maxFinite,
-          height: 300,
-          child: printBridgeLogs.isEmpty
-              ? Center(child: Text("Belum ada pesan dari Web."))
-              : ListView.builder(
-                  itemCount: printBridgeLogs.length,
-                  itemBuilder: (context, index) {
-                    final log = printBridgeLogs[index];
-                    return Card(
-                      margin: EdgeInsets.only(bottom: 8),
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(log, style: TextStyle(fontSize: 13)),
-                      ),
-                    );
-                  },
-                ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              setState(() {
-                printBridgeLogs.clear();
-              });
-              Navigator.pop(context);
-            },
-            child: Text("Clear"),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("Tutup"),
-          ),
-        ],
-      ),
-    );
-  }
+  // void _showPrintBridgeLogs() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (ctx) => AlertDialog(
+  //       title: Text("Log PrintBridge (${printBridgeLogs.length})"),
+  //       content: SizedBox(
+  //         width: double.maxFinite,
+  //         height: 300,
+  //         child: printBridgeLogs.isEmpty
+  //             ? Center(child: Text("Belum ada pesan dari Web."))
+  //             : ListView.builder(
+  //                 itemCount: printBridgeLogs.length,
+  //                 itemBuilder: (context, index) {
+  //                   final log = printBridgeLogs[index];
+  //                   return Card(
+  //                     margin: EdgeInsets.only(bottom: 8),
+  //                     child: Padding(
+  //                       padding: EdgeInsets.all(8.0),
+  //                       child: Text(log, style: TextStyle(fontSize: 13)),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //       ),
+  //       actions: [
+  //         TextButton(
+  //           onPressed: () {
+  //             setState(() {
+  //               printBridgeLogs.clear();
+  //             });
+  //             Navigator.pop(context);
+  //           },
+  //           child: Text("Clear"),
+  //         ),
+  //         TextButton(
+  //           onPressed: () => Navigator.pop(context),
+  //           child: Text("Tutup"),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -139,37 +139,37 @@ class _WebViewScreenState extends State<WebViewScreen> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          FloatingActionButton(
-            heroTag: "btnLog",
-            // onPressed: () => _showPrintBridgeLogs(),
-            onPressed: () {
-              controller.runJavaScript("""
-            PrintBridge.postMessage(JSON.stringify({
-              test: "coba PrintBridge",
-              time: "${DateTime.now()}"
-            }));
-          """);
-              _showPrintBridgeLogs();
-            },
+          // FloatingActionButton(
+          //   heroTag: "btnLog",
+          //   // onPressed: () => _showPrintBridgeLogs(),
+          //   onPressed: () {
+          //     controller.runJavaScript("""
+          //   PrintBridge.postMessage(JSON.stringify({
+          //     test: "coba PrintBridge",
+          //     time: "${DateTime.now()}"
+          //   }));
+          // """);
+          //     _showPrintBridgeLogs();
+          //   },
 
-            tooltip: 'Lihat Log PrintBridge',
-            child: const Icon(Icons.list),
-          ),
-          SizedBox(height: 16),
-          FloatingActionButton(
-            heroTag: "btnTestBridge",
-            onPressed: () {
-              controller.runJavaScript("""
-            PrintBridge.postMessage(JSON.stringify({
-              test: "coba PrintBridge",
-              time: "${DateTime.now()}"
-            }));
-          """);
-            },
-            tooltip: 'Test PrintBridge',
-            child: const Icon(Icons.bug_report),
-          ),
-          SizedBox(height: 16),
+          //   tooltip: 'Lihat Log PrintBridge',
+          //   child: const Icon(Icons.list),
+          // ),
+          // SizedBox(height: 16),
+          // FloatingActionButton(
+          //   heroTag: "btnTestBridge",
+          //   onPressed: () {
+          //     controller.runJavaScript("""
+          //   PrintBridge.postMessage(JSON.stringify({
+          //     test: "coba PrintBridge",
+          //     time: "${DateTime.now()}"
+          //   }));
+          // """);
+          //   },
+          //   tooltip: 'Test PrintBridge',
+          //   child: const Icon(Icons.bug_report),
+          // ),
+          // SizedBox(height: 16),
         ],
       ),
     );
@@ -193,13 +193,39 @@ class _PrintDialogState extends State<PrintDialog> {
   Printer? _selectedPrinter;
   bool _isLoading = true;
   bool _isPrinting = false;
-  String _status = "Scanning printers...";
+  bool _isAutoPrinting = false;
+  String _status = "Initializing...";
   StreamSubscription<List<Printer>>? _devicesSubscription;
 
   @override
   void initState() {
     super.initState();
-    _startScan();
+    _loadSavedPrinterAndPrint();
+  }
+
+  Future<void> _loadSavedPrinterAndPrint() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPrinterJson = prefs.getString('selected_printer');
+
+    if (savedPrinterJson != null) {
+      final printerMap = json.decode(savedPrinterJson);
+      final savedPrinter = Printer(
+        name: printerMap['name'],
+        address: printerMap['address'],
+        connectionType: ConnectionType.values.firstWhere(
+          (e) => e.toString() == printerMap['connectionType'],
+        ),
+      );
+      setState(() {
+        _selectedPrinter = savedPrinter;
+        _isAutoPrinting = true;
+        _status = "Printing to saved printer: ${savedPrinter.name}";
+      });
+      await _performPrint();
+    } else {
+      // No saved printer, proceed with scanning
+      _startScan();
+    }
   }
 
   Future<void> _checkBluetoothPermissions() async {
@@ -363,19 +389,35 @@ class _PrintDialogState extends State<PrintDialog> {
       final totals = data['totals'] ?? {};
       bytes += generator.row([
         PosColumn(text: 'Subtotal', width: 4),
-        PosColumn(text: get(totals['subtotal']), width: 8),
+        PosColumn(
+          text: get(totals['subtotal']),
+          width: 8,
+          styles: PosStyles(align: PosAlign.right),
+        ),
       ]);
       bytes += generator.row([
         PosColumn(text: 'Discount', width: 4),
-        PosColumn(text: get(totals['discount']), width: 8),
+        PosColumn(
+          text: get(totals['discount']),
+          width: 8,
+          styles: PosStyles(align: PosAlign.right),
+        ),
       ]);
       bytes += generator.row([
         PosColumn(text: 'Gratuity', width: 4),
-        PosColumn(text: get(totals['gratuity']), width: 8),
+        PosColumn(
+          text: get(totals['gratuity']),
+          width: 8,
+          styles: PosStyles(align: PosAlign.right),
+        ),
       ]);
       bytes += generator.row([
         PosColumn(text: 'Tax', width: 4),
-        PosColumn(text: get(totals['tax']), width: 8),
+        PosColumn(
+          text: get(totals['tax']),
+          width: 8,
+          styles: PosStyles(align: PosAlign.right),
+        ),
       ]);
       bytes += generator.hr(ch: ' ');
       bytes += generator.row([
@@ -410,7 +452,7 @@ class _PrintDialogState extends State<PrintDialog> {
         get(footer['thank_you_note'], "Thank you for your purchase!"),
         styles: const PosStyles(align: PosAlign.center),
       );
-      bytes += generator.feed(1);
+      bytes += generator.feed(0);
       bytes += generator.cut();
 
       await _printer.printData(_selectedPrinter!, bytes);
@@ -425,9 +467,22 @@ class _PrintDialogState extends State<PrintDialog> {
       );
     } catch (e) {
       debugPrint("Print error: $e");
-      setState(() {
-        _status = "Error: $e";
-      });
+      if (mounted) {
+        setState(() {
+          _status = "Error: $e";
+        });
+      }
+      // If auto-printing fails, close the dialog and show an error.
+      if (_isAutoPrinting) {
+        Get.back(); // Close the printing dialog
+        Get.snackbar(
+          "Print Failed",
+          "Could not connect to saved printer. Please check printer status or change printer in settings.",
+          backgroundColor: Colors.red,
+          colorText: Colors.white,
+          duration: const Duration(seconds: 5),
+        );
+      }
       try {
         await _printer.disconnect(_selectedPrinter!);
       } catch (_) {}
@@ -442,80 +497,80 @@ class _PrintDialogState extends State<PrintDialog> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        AlertDialog(
-          title: Text("Print Receipt"),
-          content: SizedBox(
-            width: 300,
-            child: _isLoading
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(),
-                      const SizedBox(height: 12),
-                      Text(_status),
-                    ],
-                  )
-                : _printers.isEmpty
-                ? Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_status, textAlign: TextAlign.center),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: _startScan,
-                        child: Text("Scan Again"),
-                      ),
-                    ],
-                  )
-                : Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      DropdownButton<Printer>(
-                        value: _selectedPrinter != null
-                            ? _printers.firstWhere(
-                                (p) => p.address == _selectedPrinter!.address,
-                                orElse: () => _printers.first,
-                              )
-                            : null,
-                        items: _printers.map((printer) {
-                          return DropdownMenuItem<Printer>(
-                            value: printer,
-                            child: Text(
-                              printer.name ?? "Unknown (${printer.address})",
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (Printer? newPrinter) {
-                          setState(() {
-                            _selectedPrinter = newPrinter;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      Text(_status),
-                    ],
-                  ),
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: _isLoading || _selectedPrinter == null
-                  ? null
-                  : _performPrint,
-              child: const Text("Print"),
-            ),
-            SizedBox(height: 5),
-            Align(
-              child: Column(
-                children: [
-                  TextButton(
-                    onPressed: _isLoading ? null : () => Get.back(),
-                    child: const Text("Cancel"),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        // AlertDialog(
+        //   title: Text("Print Receipt"),
+        //   content: SizedBox(
+        //     width: 300,
+        //     child: _isAutoPrinting || _isLoading
+        //         ? Column(
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: [
+        //               const CircularProgressIndicator(),
+        //               const SizedBox(height: 12),
+        //               Text(_status, textAlign: TextAlign.center),
+        //             ],
+        //           )
+        //         : _printers.isEmpty
+        //         ? Column(
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: [
+        //               Text(_status, textAlign: TextAlign.center),
+        //               const SizedBox(height: 16),
+        //               ElevatedButton(
+        //                 onPressed: _startScan,
+        //                 child: Text("Scan Again"),
+        //               ),
+        //             ],
+        //           )
+        //         : Column(
+        //             mainAxisSize: MainAxisSize.min,
+        //             children: [
+        //               DropdownButton<Printer>(
+        //                 value: _selectedPrinter != null
+        //                     ? _printers.firstWhere(
+        //                         (p) => p.address == _selectedPrinter!.address,
+        //                         orElse: () => _printers.first,
+        //                       )
+        //                     : null,
+        //                 items: _printers.map((printer) {
+        //                   return DropdownMenuItem<Printer>(
+        //                     value: printer,
+        //                     child: Text(
+        //                       printer.name ?? "Unknown (${printer.address})",
+        //                     ),
+        //                   );
+        //                 }).toList(),
+        //                 onChanged: (Printer? newPrinter) {
+        //                   setState(() {
+        //                     _selectedPrinter = newPrinter;
+        //                   });
+        //                 },
+        //               ),
+        //               const SizedBox(height: 8),
+        //               Text(_status),
+        //             ],
+        //           ),
+        //   ),
+        //   actions: [
+        //     ElevatedButton(
+        //       onPressed: _isLoading || _selectedPrinter == null
+        //           ? null
+        //           : _performPrint,
+        //       child: const Text("Print"),
+        //     ),
+        //     SizedBox(height: 5),
+        //     Align(
+        //       child: Column(
+        //         children: [
+        //           TextButton(
+        //             onPressed: _isLoading ? null : () => Get.back(),
+        //             child: const Text("Cancel"),
+        //           ),
+        //         ],
+        //       ),
+        //     ),
+        //   ],
+        // ),
 
         // overlay loading print
         if (_isPrinting)
