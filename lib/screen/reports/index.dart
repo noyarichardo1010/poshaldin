@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:protopos/screen/homepage/components/webview.dart';
+import 'package:protopos/screen/reports/components/webview.dart';
 
 // ignore: camel_case_types
-class HomeView extends StatelessWidget {
+class ReportsView extends StatelessWidget {
   final String url;
-  const HomeView({super.key, required this.url});
+  const ReportsView({super.key, required this.url});
 
   @override
   Widget build(BuildContext context) {

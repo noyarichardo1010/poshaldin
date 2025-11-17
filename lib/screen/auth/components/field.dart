@@ -60,12 +60,13 @@ class _LogInFormState extends State<LogInForm> {
                     children: [
                       TextFormField(
                         controller: widget.emailController,
+                        validator: emaildValidator.call,
                         textInputAction: TextInputAction.next,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Color(0xffe2e0e0)),
+                            borderSide: BorderSide(color: borderColor),
                           ),
                           contentPadding: EdgeInsets.symmetric(
                             horizontal: 12,
@@ -95,11 +96,10 @@ class _LogInFormState extends State<LogInForm> {
                         controller: widget.passwordController,
                         validator: passwordValidator.call,
                         obscureText: _obscureText,
-
                         decoration: InputDecoration(
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Color(0xffe2e0e0)),
+                            borderSide: BorderSide(color: borderColor),
                           ),
                           hintText: "Password",
                           suffixIcon: Stack(

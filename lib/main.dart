@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
-import 'package:get/get_navigation/src/root/get_material_app.dart';
+// import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:protopos/assets.dart';
+import 'package:protopos/const.dart';
 
 import 'package:protopos/controller/webview/viewcontrol.dart';
 
 import 'package:protopos/screen/auth/login.dart';
 import 'package:protopos/screen/homepage/home.dart';
-import 'package:protopos/screen/layouts/mainapp.dart';
+// import 'package:protopos/screen/layouts/mainapp.dart';
 import 'package:protopos/screen/layouts/navigation.dart';
-import 'package:protopos/screen/settings/setting.dart';
+import 'package:protopos/screen/reports/index.dart';
+import 'package:protopos/screen/settings/index.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:icons_plus/icons_plus.dart';
@@ -22,6 +25,8 @@ Future<void> main() async {
   FlutterNativeSplash.preserve(widgetsBinding: WidgetsBinding.instance);
   runApp(const MyApp());
 }
+
+final _secondUrl = secondUrl;
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -43,6 +48,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const MyHomePage(),
         '/login': (context) => const LoginScreen(),
         '/settings': (context) => SettingsPage(),
+        '/reports': (context) => ReportsView(url: thirddUrl),
       },
     );
   }
@@ -111,8 +117,12 @@ class _MyHomePageState extends State<MyHomePage> {
       final url =
           ModalRoute.of(context)?.settings.arguments as String? ??
           // 'https://cms.myhaldin.com';
-          'https://cms.myhaldin.com/proto-pos/cashier/setup?source=app';
-      _pages = [homeView(url: url), SettingsPage(), SettingsPage()];
+          _secondUrl;
+      _pages = [
+        HomeView(url: url),
+        ReportsView(url: thirddUrl),
+        SettingsPage(),
+      ];
       _isPagesInitialized = true;
     }
   }
@@ -142,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
       bottomNavigationBar: BottomNavigationBar(
         // backgroundColor: Colors.blue,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: MainStyle.colorBlue,
+        selectedItemColor: primaryColor,
         unselectedItemColor: Colors.grey,
         // unselectedLabelStyle: mainStyle.defaultFont,
         showUnselectedLabels: true,
@@ -167,16 +177,16 @@ class _MyHomePageState extends State<MyHomePage> {
             // backgroundColor: Color(0xffcacaca),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.activity, size: 25),
+            icon: Icon(Iconsax.receipt_2_1, size: 25),
             // icon: FaIcon(FontAwesomeIcons.help),
-            label: 'Others',
-            activeIcon: Icon(Iconsax.shopping_bag, size: 30),
+            label: 'Reports',
+            activeIcon: Icon(Iconsax.receipt_2_1, size: 30),
             // backgroundColor: Color(0xff232323),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Iconsax.menu_1, size: 25),
+            icon: Icon(Iconsax.setting, size: 25),
             label: 'Settings',
-            activeIcon: Icon(Iconsax.menu_1, size: 30),
+            activeIcon: Icon(Iconsax.setting, size: 30),
           ),
         ],
       ),

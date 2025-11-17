@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
 // Just for demo
-const productDemoImg1 = "https://i.imgur.com/CGCyp1d.png";
-const productDemoImg2 = "https://i.imgur.com/AkzWQuJ.png";
-const productDemoImg3 = "https://i.imgur.com/J7mGZ12.png";
+// const productDemoImg1 = "https://i.imgur.com/CGCyp1d.png";
+// const productDemoImg2 = "https://i.imgur.com/AkzWQuJ.png";
+// const productDemoImg3 = "https://i.imgur.com/J7mGZ12.png";
 // End For demo
 
 const grandisExtendedFont = "Grandis Extended";
 
-const Color primaryColor = Color(0xFF007ECD);
+const Color primaryColor = Color(0xFF2a368f);
 
 const MaterialColor primaryMaterialColor =
     MaterialColor(0xFF007ECD, <int, Color>{
@@ -46,9 +46,10 @@ const Color lightGreyColor = Color(0xFFF8F8F9);
 const Color darkGreyColor = Color(0xFF1C1C25);
 
 const Color purpleColor = Color(0xFF007ecd);
-const Color successColor = Color(0xFF2ED573);
+const Color successColor = Color(0xFF19BE5D);
 const Color warningColor = Color(0xFFFFBE21);
-const Color errorColor = Color(0xFFEA5B5B);
+const Color errorColor = Color(0xFFde0e03);
+const Color borderColor = Color(0xFFe2e0e0);
 
 const double defaultPadding = 16.0;
 const double defaultBorderRadious = 12.0;
@@ -56,14 +57,14 @@ const Duration defaultDuration = Duration(milliseconds: 300);
 
 final passwordValidator = MultiValidator([
   RequiredValidator(errorText: 'Password is required'),
-  MinLengthValidator(6, errorText: 'password must be at least 8 digits long'),
+  // MinLengthValidator(6, errorText: 'password must be at least 6 digits long'),
   // PatternValidator(r'(?=.*?[#?!@$%^&*-])',
   // errorText: 'passwords must have at least one special character')
 ]);
 
-// final emaildValidator = MultiValidator([
-//   RequiredValidator(errorText: 'Email is required'),
-//   EmailValidator(errorText: "Enter a valid email address"),
-// ]);
+final emaildValidator = MultiValidator([
+  RequiredValidator(errorText: 'Username is required'),
+  // EmailValidator(errorText: "Enter a valid email address"),
+]);
 
 const pasNotMatchErrorText = "passwords do not match";

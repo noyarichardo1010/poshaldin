@@ -1,19 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:protopos/assets.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
-
-// import 'package:poshaldin/controller/repository.dart';
 import 'package:rounded_loading_button_plus/rounded_loading_button.dart';
 import 'package:protopos/controller/login/login.dart';
 import 'components/field.dart';
 
 bool isFound = false;
-bool _obscureText = true;
+// bool _obscureText = true;
 
-final RoundedLoadingButtonController _btnController1 =
-    RoundedLoadingButtonController();
+// final RoundedLoadingButtonController _btnController1 =
+//     RoundedLoadingButtonController();
 
 final emailController = TextEditingController(text: '');
 final passwordController = TextEditingController(text: '');
@@ -25,19 +22,19 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-loginRepo repository = loginRepo();
+LoginRepo repository = LoginRepo();
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  void getTokenAdmin() async {
-    // final responseAdminToken = await repositoryKey.getTokenAdmin();
-    final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
+  // void getTokenAdmin() async {
+  //   // final responseAdminToken = await repositoryKey.getTokenAdmin();
+  //   // final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
 
-    // tokenKeyAdmin = prefsAuth.getString('tokenKeyAdmin');
-    // await prefsAuth.remove('tokenKeyAdmin');
-    // print('test print token Admin $tokenKeyAdmin');
-  }
+  //   // tokenKeyAdmin = prefsAuth.getString('tokenKeyAdmin');
+  //   // await prefsAuth.remove('tokenKeyAdmin');
+  //   // print('test print token Admin $tokenKeyAdmin');
+  // }
 
   checkToken() async {
     final SharedPreferences prefsAuth = await SharedPreferences.getInstance();
@@ -56,22 +53,22 @@ class _LoginScreenState extends State<LoginScreen> {
   var validate;
   String? tokenKey;
 
-  void _doSomething(RoundedLoadingButtonController controller) async {
-    Timer(Duration(seconds: 5), () {
-      controller.success();
-      // CircularProgressIndicator(
-      //   backgroundColor: Colors.amber,
-      // );
-      // Navigator.pushNamed(context, '/home');
-      if (controller != true) {
-        // print(controller);
-        Navigator.pushNamed(context, '/home');
-      } else {
-        Navigator.pushNamed(context, '/login');
-        // print(controller);
-      }
-    });
-  }
+  // void _doSomething(RoundedLoadingButtonController controller) async {
+  //   Timer(Duration(seconds: 5), () {
+  //     controller.success();
+  //     // CircularProgressIndicator(
+  //     //   backgroundColor: Colors.amber,
+  //     // );
+  //     // Navigator.pushNamed(context, '/home');
+  //     if (controller != true) {
+  //       // print(controller);
+  //       Navigator.pushNamed(context, '/home');
+  //     } else {
+  //       Navigator.pushNamed(context, '/login');
+  //       // print(controller);
+  //     }
+  //   });
+  // }
 
   Future<Map<String, dynamic>> loginSetAuth() async {
     return await repository.getToken(
@@ -84,7 +81,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // getTokenAdmin();
+
     // redirectPage();
     checkToken();
     setState(() {});
@@ -97,28 +94,39 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: Center(
-        // <-- Ini membuat form login berada di tengah horizontal & vertikal
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(defaultPadding),
           child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 400, // agar tampilan tidak terlalu lebar di layar besar
-            ),
+            constraints: BoxConstraints(maxWidth: 400),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      Image.asset(
+                        'assets/logo/logo_400.png',
+                        fit: BoxFit.contain,
+                        height: 60,
+                        alignment: Alignment.topLeft,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 30),
                 Center(
                   child: Text(
-                    "Welcome back!",
+                    "Welcome Back!",
                     style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
                 const SizedBox(height: defaultPadding / 2),
                 const Center(
                   child: Text(
-                    "Log in with your data that you entered during registration.",
+                    "Please Login with Your registered account",
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -153,12 +161,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     CircularProgressIndicator(
-                                      color: Colors.white,
+                                      color: whiteColor,
                                     ),
                                     SizedBox(height: 5),
                                     Text(
                                       'Please wait...',
-                                      style: TextStyle(color: Colors.white),
+                                      style: TextStyle(color: whiteColor),
                                     ),
                                   ],
                                 ),
@@ -179,7 +187,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              backgroundColor: Colors.red,
+                              backgroundColor: errorColor,
                               content: Text(result['message']),
                             ),
                           );
@@ -187,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 34, 3, 232),
+                      backgroundColor: primaryColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(50),
                       ),
@@ -198,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white,
+                        color: whiteColor,
                       ),
                     ),
                   ),

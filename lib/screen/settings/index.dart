@@ -1,13 +1,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:protopos/assets.dart';
 import 'package:protopos/screen/settings/print/index.dart';
 
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatefulWidget {
+  const SettingsPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _SettingsPage createState() => _SettingsPage();
 }
 
@@ -66,7 +70,7 @@ class _SettingsPage extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 25,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xff232323),
+                    color: darkGreyColor,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -87,7 +91,7 @@ class _SettingsPage extends State<SettingsPage> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w400,
-                    color: Color(0xff232323),
+                    color: darkGreyColor,
                   ),
                 ),
                 const SizedBox(height: 5),
@@ -97,7 +101,7 @@ class _SettingsPage extends State<SettingsPage> {
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xff232323),
+                    color: darkGreyColor,
                   ),
                 ),
                 SizedBox(height: 22),
@@ -119,7 +123,7 @@ class _SettingsPage extends State<SettingsPage> {
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w400,
-                                    color: Color(0xff232323),
+                                    color: darkGreyColor,
                                   ),
                                 ),
                               ],
@@ -144,21 +148,20 @@ class _SettingsPage extends State<SettingsPage> {
                 Center(
                   child: OutlinedButton(
                     onPressed: _performLogout,
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(
-                        color: Color.fromARGB(255, 218, 1, 1),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 40,
-                        vertical: 12,
-                      ),
-                    ),
+                    // style: OutlinedButton.styleFrom(
+                    //   side: const BorderSide(color: errorColor),
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 40,
+                    //     vertical: 12,
+                    //   ),
+                    // ),
                     child: const Text(
-                      "Log Out",
+                      "Logout",
                       style: TextStyle(
                         fontSize: 16,
                         letterSpacing: 2.2,
-                        color: Color.fromARGB(255, 218, 1, 1),
+
+                        color: errorColor,
                       ),
                     ),
                   ),
@@ -172,7 +175,7 @@ class _SettingsPage extends State<SettingsPage> {
         // Overlay loading
         if (_isLoading)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: darkGreyColor.withOpacity(0.5),
             child: const Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -182,7 +185,7 @@ class _SettingsPage extends State<SettingsPage> {
                   Text(
                     "Logging out...",
                     style: TextStyle(
-                      color: Colors.white,
+                      color: whiteColor,
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
