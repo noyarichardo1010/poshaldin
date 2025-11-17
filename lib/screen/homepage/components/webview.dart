@@ -95,7 +95,8 @@ class _WebViewScreenState extends State<WebViewScreen> {
                 "Printing, please wait...",
                 style: TextStyle(
                   color: whiteColor,
-                  fontSize: 16,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                   decoration: TextDecoration.none,
                 ),
               ),

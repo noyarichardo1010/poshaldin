@@ -180,103 +180,115 @@ class _PrintPageState extends State<PrintPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Print Settings')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Select Printer",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 5),
-            if (_isLoading)
-              const Center(child: CircularProgressIndicator())
-            else if (_printers.isEmpty)
-              Center(
-                child: Column(
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Print Settings')),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Select Printer",
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 16),
+              if (_isLoading)
+                const Center(child: CircularProgressIndicator())
+              else if (_printers.isEmpty)
+                Center(
+                  child: Column(
+                    children: [
+                      Text(_status, textAlign: TextAlign.center),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _startScan,
+                        child: const Text("Scan Again"),
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Column(
                   children: [
-                    Text(_status, textAlign: TextAlign.center),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _startScan,
-                      child: const Text("Scan Again"),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                            ),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8.0),
+                              border: Border.all(color: Colors.grey),
+                              color: _isPrinterSaved
+                                  ? Colors.grey[200]
+                                  : Colors.transparent,
+                            ),
+                            child: DropdownButton<Printer>(
+                              value: _selectedPrinter,
+                              isExpanded: true,
+                              underline: const SizedBox(),
+                              items: _printers.map((printer) {
+                                return DropdownMenuItem<Printer>(
+                                  value: printer,
+                                  child: Text(
+                                    printer.name ??
+                                        "Unknown (${printer.address})",
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: _isPrinterSaved
+                                  ? null
+                                  : (Printer? newPrinter) {
+                                      setState(() {
+                                        _selectedPrinter = newPrinter;
+                                      });
+                                    },
+                            ),
+                          ),
+                        ),
+                        if (_isPrinterSaved)
+                          IconButton(
+                            icon: const Icon(Icons.clear, size: 18),
+                            onPressed: _clearSavedPrinter,
+                            tooltip: "Change Printer",
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    if (!_isPrinterSaved)
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _selectedPrinter == null
+                              ? null
+                              : () => _savePrinter(_selectedPrinter!),
+                          child: const Text("Save Settings"),
+                        ),
+                      ),
+                    // const SizedBox(height: 8),
+                    SizedBox(
+                      width: double.infinity,
+                      child: TextButton(
+                        onPressed: _startScan,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.search, size: 20),
+                            SizedBox(width: 8),
+                            Text("Rescan"),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
-              )
-            else
-              Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8.0),
-                            border: Border.all(color: Colors.grey),
-                            color: _isPrinterSaved
-                                ? Colors.grey[200]
-                                : Colors.transparent,
-                          ),
-                          child: DropdownButton<Printer>(
-                            value: _selectedPrinter,
-                            isExpanded: true,
-                            underline: const SizedBox(),
-                            items: _printers.map((printer) {
-                              return DropdownMenuItem<Printer>(
-                                value: printer,
-                                child: Text(
-                                  printer.name ??
-                                      "Unknown (${printer.address})",
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: _isPrinterSaved
-                                ? null
-                                : (Printer? newPrinter) {
-                                    setState(() {
-                                      _selectedPrinter = newPrinter;
-                                    });
-                                  },
-                          ),
-                        ),
-                      ),
-                      if (_isPrinterSaved)
-                        IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: _clearSavedPrinter,
-                          tooltip: "Change Printer",
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  if (!_isPrinterSaved)
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _selectedPrinter == null
-                            ? null
-                            : () => _savePrinter(_selectedPrinter!),
-                        child: const Text("Save Settings"),
-                      ),
-                    ),
-                  const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      onPressed: _startScan,
-                      child: const Text("Rescan"),
-                    ),
-                  ),
-                ],
-              ),
-            const SizedBox(height: 16),
-            // Text(_status, style: Theme.of(context).textTheme.bodySmall),
-          ],
+              const SizedBox(height: 16),
+              // Text(_status, style: Theme.of(context).textTheme.bodySmall),
+            ],
+          ),
         ),
       ),
     );

@@ -8,7 +8,7 @@ import 'package:protopos/const.dart';
 import 'package:protopos/controller/webview/viewcontrol.dart';
 
 import 'package:protopos/screen/auth/login.dart';
-import 'package:protopos/screen/homepage/home.dart';
+import 'package:protopos/screen/homepage/index.dart';
 // import 'package:protopos/screen/layouts/mainapp.dart';
 import 'package:protopos/screen/layouts/navigation.dart';
 import 'package:protopos/screen/reports/index.dart';
