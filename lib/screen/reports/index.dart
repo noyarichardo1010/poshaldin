@@ -8,6 +8,7 @@ class ReportsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WebViewScreen(url: url);
+    // return WebViewScreen(url: url);
+    return PopScope(canPop: false, child: WebViewScreen(url: url));
   }
 }

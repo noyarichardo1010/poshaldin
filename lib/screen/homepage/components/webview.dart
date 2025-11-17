@@ -3,15 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:protopos/assets.dart';
-// import 'package:protopos/controller/print/receipt_data.dart';
 import 'package:protopos/controller/webview/viewcontrol.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:flutter_thermal_printer/flutter_thermal_printer.dart';
 import 'package:flutter_thermal_printer/utils/printer.dart';
-// import 'package:esc_pos_utils_plus/esc_pos_utils_plus.dart';
-
-// import 'package:permission_handler/permission_handler.dart';
 
 class WebViewScreen extends StatefulWidget {
   final String url;
@@ -24,6 +20,7 @@ class WebViewScreen extends StatefulWidget {
 class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController controller;
   final MainController mainController = Get.find();
+  bool _isPrinting = false;
 
   @override
   void initState() {
@@ -80,6 +77,35 @@ class _WebViewScreenState extends State<WebViewScreen> {
   }
 
   Future<void> _printReceipt(Map<String, dynamic> data) async {
+    setState(() {
+      _isPrinting = true;
+    });
+
+    // Show loading dialog
+    Get.dialog(
+      const PopScope(
+        canPop: false,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CircularProgressIndicator(color: whiteColor),
+              SizedBox(height: 16),
+              Text(
+                "Printing, please wait...",
+                style: TextStyle(
+                  color: whiteColor,
+                  fontSize: 16,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+
     final prefs = await SharedPreferences.getInstance();
     final savedPrinterJson = prefs.getString('selected_printer');
 
@@ -117,15 +143,23 @@ class _WebViewScreenState extends State<WebViewScreen> {
         styles: const PosStyles(
           align: PosAlign.center,
           bold: true,
+          fontType: PosFontType.fontA,
           height: PosTextSize.size2,
           width: PosTextSize.size2,
         ),
       );
+
       bytes += generator.text(
         get(data['sub_header']),
-        styles: const PosStyles(align: PosAlign.center),
+        styles: const PosStyles(
+          align: PosAlign.center,
+          fontType: PosFontType.fontB,
+          height: PosTextSize.size1,
+          width: PosTextSize.size1,
+        ),
       );
-      bytes += generator.hr();
+
+      // bytes += generator.hr(len: 40);
 
       final details = data['details'] ?? {};
       bytes += generator.row([
@@ -144,113 +178,166 @@ class _WebViewScreenState extends State<WebViewScreen> {
         PosColumn(text: 'Bill No', width: 4),
         PosColumn(text: ': ${get(details['bill_no'])}', width: 8),
       ]);
-      bytes += generator.hr();
+
+      bytes += generator.hr(len: 40);
 
       final items = data['items'] ?? [];
       for (var item in items) {
-        bytes += generator.text(get(item['name']));
+        bytes += generator.text(
+          get(item['name']),
+          styles: const PosStyles(
+            fontType: PosFontType.fontB,
+            height: PosTextSize.size1,
+            width: PosTextSize.size1,
+          ),
+        );
+
         bytes += generator.row([
           PosColumn(
             text:
                 "  ${get(item['quantity_str'])} x ${get(item['price_formatted'])}",
             width: 12,
-            styles: PosStyles(align: PosAlign.right),
+            styles: const PosStyles(
+              align: PosAlign.right,
+              fontType: PosFontType.fontB,
+              height: PosTextSize.size1,
+            ),
           ),
         ]);
       }
 
-      bytes += generator.hr();
+      bytes += generator.hr(len: 40);
+
       final totals = data['totals'] ?? {};
       bytes += generator.row([
-        PosColumn(text: 'Subtotal', width: 4),
+        PosColumn(text: 'Subtotal', width: 6),
         PosColumn(
           text: get(totals['subtotal']),
-          width: 8,
-          styles: PosStyles(align: PosAlign.right),
+          width: 6,
+          styles: const PosStyles(
+            fontType: PosFontType.fontB,
+            height: PosTextSize.size1,
+          ),
         ),
       ]);
+
       bytes += generator.row([
-        PosColumn(text: 'Discount', width: 4),
+        PosColumn(text: 'Discount', width: 6),
         PosColumn(
           text: get(totals['discount']),
-          width: 8,
-          styles: PosStyles(align: PosAlign.right),
+          width: 6,
+          styles: const PosStyles(
+            fontType: PosFontType.fontB,
+            height: PosTextSize.size1,
+          ),
         ),
       ]);
+
       bytes += generator.row([
-        PosColumn(text: 'Gratuity', width: 4),
+        PosColumn(text: 'Gratuity', width: 6),
         PosColumn(
           text: get(totals['gratuity']),
-          width: 8,
-          styles: PosStyles(align: PosAlign.right),
+          width: 6,
+          styles: const PosStyles(
+            fontType: PosFontType.fontB,
+            height: PosTextSize.size1,
+          ),
         ),
       ]);
+
       bytes += generator.row([
-        PosColumn(text: 'Tax', width: 4),
+        PosColumn(text: 'Tax', width: 6),
         PosColumn(
           text: get(totals['tax']),
-          width: 8,
-          styles: PosStyles(align: PosAlign.right),
+          width: 6,
+          styles: const PosStyles(
+            fontType: PosFontType.fontB,
+            height: PosTextSize.size1,
+          ),
         ),
       ]);
-      bytes += generator.hr(ch: ' ');
+
+      bytes += generator.hr(len: 40);
+
       bytes += generator.row([
         PosColumn(
-          text: 'GRAND TOTAL',
-          width: 4,
+          text: 'TOTAL',
+          width: 6,
           styles: const PosStyles(
             bold: true,
+            fontType: PosFontType.fontB,
             height: PosTextSize.size2,
-            align: PosAlign.left,
           ),
         ),
         PosColumn(
           text: get(totals['grand_total']),
-          width: 8,
+          width: 6,
           styles: const PosStyles(
-            align: PosAlign.right,
             bold: true,
+            fontType: PosFontType.fontB,
             height: PosTextSize.size2,
           ),
         ),
       ]);
-      bytes += generator.hr();
+
+      bytes += generator.hr(len: 40);
 
       final footer = data['footer'] ?? {};
       bytes += generator.text(
         "Payment Method: ${get(footer['payment_method'])}",
-        styles: const PosStyles(align: PosAlign.center),
+        styles: const PosStyles(
+          align: PosAlign.center,
+          fontType: PosFontType.fontB,
+          height: PosTextSize.size1,
+        ),
       );
-      bytes += generator.feed(1);
+
       bytes += generator.text(
         get(footer['thank_you_note'], "Thank you for your purchase!"),
-        styles: const PosStyles(align: PosAlign.center),
+        styles: const PosStyles(
+          align: PosAlign.center,
+          fontType: PosFontType.fontB,
+          height: PosTextSize.size1,
+        ),
       );
+
       bytes += generator.feed(0);
       bytes += generator.cut();
 
       await printer.printData(selectedPrinter, bytes);
       await printer.disconnect(selectedPrinter);
 
+      if (Get.isDialogOpen!) Get.back();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: successColor,
-          content: Text('Success, Receipt printed successfully! '),
+          content: const Text('Success, Receipt printed successfully!'),
         ),
       );
     } catch (e) {
       debugPrint("Print error: $e");
+
+      if (Get.isDialogOpen!) Get.back();
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           backgroundColor: errorColor,
-          content: Text(
+          content: const Text(
             'Could not connect to saved printer. Please check printer status or change printer in settings.',
           ),
         ),
       );
+
       try {
         await printer.disconnect(selectedPrinter);
       } catch (_) {}
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isPrinting = false;
+        });
+      }
     }
   }
 

@@ -99,98 +99,101 @@ class _SettingsPage extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Scaffold(
-          body: Container(
-            padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
-            child: ListView(
-              children: [
-                const Text(
-                  "Settings",
-                  style: TextStyle(
-                    fontSize: 25,
-                    fontWeight: FontWeight.w500,
-                    color: darkGreyColor,
+        PopScope(
+          canPop: false,
+          child: Scaffold(
+            body: Container(
+              padding: const EdgeInsets.only(left: 16, top: 25, right: 16),
+              child: ListView(
+                children: [
+                  const Text(
+                    "Settings",
+                    style: TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.w500,
+                      color: darkGreyColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  alignment: Alignment.center,
-                  child: CircleAvatar(
-                    radius: 35,
-                    backgroundImage: urlProfilePic.isNotEmpty
-                        ? NetworkImage(urlProfilePic)
-                        : const AssetImage('assets/icons/user.png')
-                              as ImageProvider,
+                  const SizedBox(height: 16),
+                  Container(
+                    alignment: Alignment.center,
+                    child: CircleAvatar(
+                      radius: 35,
+                      backgroundImage: urlProfilePic.isNotEmpty
+                          ? NetworkImage(urlProfilePic)
+                          : const AssetImage('assets/icons/user.png')
+                                as ImageProvider,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                const Text(
-                  'Welcome,',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400,
-                    color: darkGreyColor,
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Welcome,',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: darkGreyColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  getProfileName.isNotEmpty ? getProfileName : 'User',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: darkGreyColor,
+                  const SizedBox(height: 5),
+                  Text(
+                    getProfileName.isNotEmpty ? getProfileName : 'User',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: darkGreyColor,
+                    ),
                   ),
-                ),
-                SizedBox(height: 22),
-                Row(
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        Get.to(() => const PrintPage());
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Printer Setting',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w400,
-                              color: darkGreyColor,
+                  SizedBox(height: 22),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Get.to(() => const PrintPage());
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Printer Setting',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                                color: darkGreyColor,
+                              ),
                             ),
-                          ),
-                          Icon(Icons.keyboard_arrow_right, size: 20),
-                        ],
+                            Icon(Icons.keyboard_arrow_right, size: 20),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 30),
-                Center(
-                  child: OutlinedButton(
-                    onPressed: _showLogoutConfirmationDialog,
-                    // style: OutlinedButton.styleFrom(
-                    //   side: const BorderSide(color: errorColor),
-                    //   padding: const EdgeInsets.symmetric(
-                    //     horizontal: 40,
-                    //     vertical: 12,
-                    //   ),
-                    // ),
-                    child: const Text(
-                      "Logout",
-                      style: TextStyle(
-                        fontSize: 16,
-                        letterSpacing: 2.2,
+                    ],
+                  ),
+                  const SizedBox(height: 30),
+                  Center(
+                    child: OutlinedButton(
+                      onPressed: _showLogoutConfirmationDialog,
+                      // style: OutlinedButton.styleFrom(
+                      //   side: const BorderSide(color: errorColor),
+                      //   padding: const EdgeInsets.symmetric(
+                      //     horizontal: 40,
+                      //     vertical: 12,
+                      //   ),
+                      // ),
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          fontSize: 16,
+                          letterSpacing: 2.2,
 
-                        color: errorColor,
+                          color: errorColor,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 30),
-              ],
+                  const SizedBox(height: 30),
+                ],
+              ),
             ),
           ),
         ),
