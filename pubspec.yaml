@@ -21,7 +21,6 @@ dependencies:
   google_fonts: ^6.1.0
   icons_plus: ^4.0.0
   get: ^4.6.6
-  flutter_native_splash: ^2.3.0
   cupertino_icons: ^1.0.8
   page_transition: ^2.2.1
   esc_pos_utils_plus: ^2.0.4
@@ -34,6 +33,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.3.0
 
 flutter_native_splash:
   color: "#FFFFFF"              # white
@@ -47,17 +47,17 @@ flutter_native_splash:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/logo/icon_app.png"
+  image_path: "assets/logo/icon_app2.png"
   min_sdk_android: 21
 
 flutter:
   uses-material-design: true
-
   assets:
     - assets/icons/Lock.svg
     - assets/icons/User.svg
     - assets/icons/user.png
     - assets/logo/logo_400.png
     - assets/logo/icon_app.png
+    - assets/logo/icon_app2.png
     - assets/logo/splash_logo.png
     - assets/splash_logo.png
