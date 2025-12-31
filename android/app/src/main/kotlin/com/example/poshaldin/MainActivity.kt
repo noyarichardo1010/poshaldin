@@ -1,4 +1,4 @@
-package com.example.poshaldin
+package com.haldin.poshaldin
 
 import io.flutter.embedding.android.FlutterActivity
 

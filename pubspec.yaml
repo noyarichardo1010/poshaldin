@@ -1,5 +1,5 @@
 name: protopos
-description: "Talasi POS membantu Anda mengelola transaksi penjualan, stok, dan laporan bisnis dengan cepat dan mudah. Cocok untuk toko, kafe, dan usaha ritel Anda."
+description: "Talasi POS membantu Anda mengelola transaksi penjualan, stok, dan laporan bisnis dengan cepat dan mudah."
 publish_to: 'none'
 
 version: 1.0.0+1
@@ -26,7 +26,6 @@ dependencies:
   esc_pos_utils_plus: ^2.0.4
   flutter_thermal_printer: ^1.2.4
   permission_handler: ^12.0.1
-  
 
 dev_dependencies:
   flutter_test:
@@ -36,18 +35,20 @@ dev_dependencies:
   flutter_native_splash: ^2.3.0
 
 flutter_native_splash:
-  color: "#FFFFFF"              # white
-  image: assets/logo/logo_400.png
-  color_dark: "#FFFFFF"         # white for dark mode
-  image_dark: assets/logo/logo_400.png
+  color: "#FFFFFF"
+  color_dark: "#FFFFFF"
+  image: assets/logo/splash_logo.png
+  image_dark: assets/logo/splash_logo.png
   android: true
-  ios: true
+  ios: false
   web: true
 
 flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: "assets/logo/icon_app2.png"
+  # android: launcher_icon
+  android: true
+  ios: false
+  image_path: "assets/logo/icon_app.png"
+  # adaptive_icon_foreground: "assets/logo/logo_400.png"
   min_sdk_android: 21
 
 flutter:
@@ -57,7 +58,7 @@ flutter:
     - assets/icons/User.svg
     - assets/icons/user.png
     - assets/logo/logo_400.png
-    - assets/logo/icon_app.png
     - assets/logo/icon_app2.png
-    - assets/logo/splash_logo.png
-    - assets/splash_logo.png
+    - assets/logo/icon_app22.png
+    - assets/logo/icon_app222.png
+    - assets/logo/ic_launcher-web.png
